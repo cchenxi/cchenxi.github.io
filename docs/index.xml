@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>陈曦的技术博客</title>
+    <link>/</link>
+    <description>Recent content on 陈曦的技术博客</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 03 Jun 2021 14:57:23 +0800</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Hello World2</title>
+      <link>/posts/hello-world2/</link>
+      <pubDate>Thu, 03 Jun 2021 14:57:23 +0800</pubDate>
+      
+      <guid>/posts/hello-world2/</guid>
+      <description>Hello World2</description>
+    </item>
+    
+    <item>
+      <title>Hello World</title>
+      <link>/posts/hello-world/</link>
+      <pubDate>Thu, 03 Jun 2021 14:50:11 +0800</pubDate>
+      
+      <guid>/posts/hello-world/</guid>
+      <description>Hello World hello
+ list 1 list 2  </description>
+    </item>
+    
+  </channel>
+</rss>
