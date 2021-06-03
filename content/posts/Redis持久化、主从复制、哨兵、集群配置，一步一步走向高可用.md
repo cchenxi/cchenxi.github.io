@@ -4,8 +4,9 @@ date: 2021-06-03T21:31:18+08:00
 draft: false
 tags:
 - Redis
+- 缓存
 categories:
-- Redis 
+- 分布式缓存
 ---
 
 # Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用
