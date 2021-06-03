@@ -2,5 +2,4 @@
 3.2. 配置sentinel的配置文件 sentinel0.conf
 sentinel monitor mymaster 127.0.0.1 6379 2 sentinel down-after-milliseconds mymaster 10000 3.3. 启动一个sentinel节点 使用以下命令启动一个sentinel
 redis-sentinel ./conf/sentinel0.conf 启动之后控制台输出如下内容
-5643:X 13 Mar 2021 21:40:56.054 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo 5643:X 13 Mar 2021 21:40:56.054 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5643, just started 5643:X 13 Mar 2021 21:40:56.054 # Configuration loaded 5643:X 13 Mar 2021 21:40:56.055 * Increased maximum number of open files to 10032 (it was originally set to 256).</description></item><item><title>Hello World</title><link>https://cchenxi.github.io/posts/first-blog/</link><pubDate>Thu, 03 Jun 2021 15:39:25 +0800</pubDate><guid>https://cchenxi.github.io/posts/first-blog/</guid><description>测试写博客
-java 并发编程实战 数据密集型应用系统设计</description></item></channel></rss>
+5643:X 13 Mar 2021 21:40:56.054 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo 5643:X 13 Mar 2021 21:40:56.054 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5643, just started 5643:X 13 Mar 2021 21:40:56.054 # Configuration loaded 5643:X 13 Mar 2021 21:40:56.055 * Increased maximum number of open files to 10032 (it was originally set to 256).</description></item></channel></rss>
