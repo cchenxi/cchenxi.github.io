@@ -1,0 +1,596 @@
+<!doctype html><html class=no-js lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><title>Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用 - 陈曦的技术博客</title><script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script><meta name=description content><meta property="og:title" content="Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用"><meta property="og:description" content="Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用 1. Redis数据持久化 2. Redis主从复制：从单机到多节点 3. Redis Sentinel主从切换：走向高可用 3.1. 配置主从 参考步骤2. 配置一主一从两个Redis节点，主节点为127.0.0.1:6379，从节点为127.0.0.1:6380。
+3.2. 配置sentinel的配置文件 sentinel0.conf
+sentinel monitor mymaster 127.0.0.1 6379 2 sentinel down-after-milliseconds mymaster 10000 3.3. 启动一个sentinel节点 使用以下命令启动一个sentinel
+redis-sentinel ./conf/sentinel0.conf 启动之后控制台输出如下内容
+5643:X 13 Mar 2021 21:40:56.054 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo 5643:X 13 Mar 2021 21:40:56.054 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5643, just started 5643:X 13 Mar 2021 21:40:56.054 # Configuration loaded 5643:X 13 Mar 2021 21:40:56.055 * Increased maximum number of open files to 10032 (it was originally set to 256)."><meta property="og:type" content="article"><meta property="og:url" content="https://cchenxi.github.io/posts/redis%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%93%A8%E5%85%B5%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E8%B5%B0%E5%90%91%E9%AB%98%E5%8F%AF%E7%94%A8/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-03T21:31:18+08:00"><meta property="article:modified_time" content="2021-06-03T21:31:18+08:00"><meta itemprop=name content="Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用"><meta itemprop=description content="Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用 1. Redis数据持久化 2. Redis主从复制：从单机到多节点 3. Redis Sentinel主从切换：走向高可用 3.1. 配置主从 参考步骤2. 配置一主一从两个Redis节点，主节点为127.0.0.1:6379，从节点为127.0.0.1:6380。
+3.2. 配置sentinel的配置文件 sentinel0.conf
+sentinel monitor mymaster 127.0.0.1 6379 2 sentinel down-after-milliseconds mymaster 10000 3.3. 启动一个sentinel节点 使用以下命令启动一个sentinel
+redis-sentinel ./conf/sentinel0.conf 启动之后控制台输出如下内容
+5643:X 13 Mar 2021 21:40:56.054 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo 5643:X 13 Mar 2021 21:40:56.054 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5643, just started 5643:X 13 Mar 2021 21:40:56.054 # Configuration loaded 5643:X 13 Mar 2021 21:40:56.055 * Increased maximum number of open files to 10032 (it was originally set to 256)."><meta itemprop=datePublished content="2021-06-03T21:31:18+08:00"><meta itemprop=dateModified content="2021-06-03T21:31:18+08:00"><meta itemprop=wordCount content="3797"><meta itemprop=keywords content="Redis,"><meta name=twitter:card content="summary"><meta name=twitter:title content="Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用"><meta name=twitter:description content="Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用 1. Redis数据持久化 2. Redis主从复制：从单机到多节点 3. Redis Sentinel主从切换：走向高可用 3.1. 配置主从 参考步骤2. 配置一主一从两个Redis节点，主节点为127.0.0.1:6379，从节点为127.0.0.1:6380。
+3.2. 配置sentinel的配置文件 sentinel0.conf
+sentinel monitor mymaster 127.0.0.1 6379 2 sentinel down-after-milliseconds mymaster 10000 3.3. 启动一个sentinel节点 使用以下命令启动一个sentinel
+redis-sentinel ./conf/sentinel0.conf 启动之后控制台输出如下内容
+5643:X 13 Mar 2021 21:40:56.054 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo 5643:X 13 Mar 2021 21:40:56.054 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5643, just started 5643:X 13 Mar 2021 21:40:56.054 # Configuration loaded 5643:X 13 Mar 2021 21:40:56.055 * Increased maximum number of open files to 10032 (it was originally set to 256)."><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=dns-prefetch href=//fonts.googleapis.com><link rel=dns-prefetch href=//fonts.gstatic.com><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700"><link rel=stylesheet href=/css/style.css><link rel="shortcut icon" href=/favicon.ico></head><body class=body><div class="container container--outer"><header class=header><div class="container header__container"><div class="logo logo--mixed"><a class=logo__link href=/ title=陈曦的技术博客 rel=home><div class="logo__item logo__imagebox"><img class=logo__img src=/image/WechatIMG2.jpeg></div><div class="logo__item logo__text"><div class=logo__title>陈曦的技术博客</div></div></a></div><nav class=menu><button class=menu__btn aria-haspopup=true aria-expanded=false tabindex=0>
+<span class=menu__btn-title tabindex=-1>Menu</span></button><ul class=menu__list><li class=menu__item><a class=menu__link href=/posts/first-blog/><span class=menu__text>Hello World</span></a></li></ul></nav></div></header><div class="wrapper flex"><div class=primary><main class=main role=main><article class=post><header class=post__header><h1 class=post__title>Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用</h1><div class="post__meta meta"><div class="meta__item-author meta__item"><svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>陈曦</span></div><div class="meta__item-datetime meta__item"><svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2021-06-03T21:31:18+08:00>2021-06-03</time></div><div class="meta__item-categories meta__item"><svg class="meta__icon icon icon-category" width="16" height="16" viewBox="0 0 16 16"><path d="m7 2 1 2h8v11H0V2z"/></svg><span class=meta__text><a class=meta__link href=/categories/redis/ rel=category>Redis</a></span></div></div></header><div class="post__toc toc"><div class=toc__title>Page content</div><div class=toc__menu><nav id=TableOfContents><ul><li><a href=#1-redis数据持久化>1. Redis数据持久化</a></li><li><a href=#2-redis主从复制从单机到多节点>2. Redis主从复制：从单机到多节点</a></li><li><a href=#3-redis-sentinel主从切换走向高可用>3. Redis Sentinel主从切换：走向高可用</a><ul><li><a href=#31-配置主从>3.1. 配置主从</a></li><li><a href=#32-配置sentinel的配置文件>3.2. 配置sentinel的配置文件</a></li><li><a href=#33-启动一个sentinel节点>3.3. 启动一个sentinel节点</a></li><li><a href=#34-启动另一个sentinel节点>3.4. 启动另一个sentinel节点</a></li><li><a href=#35-测试>3.5. 测试</a></li></ul></li><li><a href=#4-redis-cluster走向分片>4. Redis Cluster：走向分片</a><ul><li><a href=#41-准备配置文件>4.1. 准备配置文件</a></li><li><a href=#42-启动redis>4.2. 启动Redis</a></li><li><a href=#43-将节点相互连接>4.3. 将节点相互连接</a></li><li><a href=#44-槽位分派>4.4. 槽位分派</a></li><li><a href=#45-主从复制>4.5. 主从复制</a></li><li><a href=#46-测试集群>4.6. 测试集群</a></li><li><a href=#47-故障转移>4.7. 故障转移</a></li><li><a href=#48-集群伸缩>4.8. 集群伸缩</a></li><li><a href=#49-命令总结>4.9. 命令总结</a></li></ul></li><li><a href=#5-参考>5. 参考</a></li></ul></nav></div></div><div class="content post__content clearfix"><h1 id=redis持久化主从复制哨兵集群配置一步一步走向高可用>Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用</h1><h2 id=1-redis数据持久化>1. Redis数据持久化</h2><h2 id=2-redis主从复制从单机到多节点>2. Redis主从复制：从单机到多节点</h2><h2 id=3-redis-sentinel主从切换走向高可用>3. Redis Sentinel主从切换：走向高可用</h2><h3 id=31-配置主从>3.1. 配置主从</h3><p>参考步骤2. 配置一主一从两个Redis节点，主节点为127.0.0.1:6379，从节点为127.0.0.1:6380。</p><h3 id=32-配置sentinel的配置文件>3.2. 配置sentinel的配置文件</h3><p>sentinel0.conf</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>sentinel monitor mymaster 127.0.0.1 6379 2
+sentinel down-after-milliseconds mymaster 10000
+</code></pre></div><h3 id=33-启动一个sentinel节点>3.3. 启动一个sentinel节点</h3><p>使用以下命令启动一个sentinel</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>redis-sentinel ./conf/sentinel0.conf
+</code></pre></div><p>启动之后控制台输出如下内容</p><pre><code class=language-log data-lang=log>5643:X 13 Mar 2021 21:40:56.054 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+5643:X 13 Mar 2021 21:40:56.054 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5643, just started
+5643:X 13 Mar 2021 21:40:56.054 # Configuration loaded
+5643:X 13 Mar 2021 21:40:56.055 * Increased maximum number of open files to 10032 (it was originally set to 256).
+                _._
+           _.-``__ ''-._
+      _.-``    `.  `_.  ''-._           Redis 6.0.9 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._
+ (    '      ,       .-`  | `,    )     Running in sentinel mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 26379
+ |    `-._   `._    /     _.-'    |     PID: 5643
+  `-._    `-._  `-./  _.-'    _.-'
+ |`-._`-._    `-.__.-'    _.-'_.-'|
+ |    `-._`-._        _.-'_.-'    |           http://redis.io
+  `-._    `-._`-.__.-'_.-'    _.-'
+ |`-._`-._    `-.__.-'    _.-'_.-'|
+ |    `-._`-._        _.-'_.-'    |
+  `-._    `-._`-.__.-'_.-'    _.-'
+      `-._    `-.__.-'    _.-'
+          `-._        _.-'
+              `-.__.-'
+
+5643:X 13 Mar 2021 21:40:56.058 # Sentinel ID is d66c226c4532b8e5d5927e0a9cd441d6c4c8f805
+5643:X 13 Mar 2021 21:40:56.058 # +monitor master mymaster 127.0.0.1 6379 quorum 2
+5643:X 13 Mar 2021 21:40:56.058 * +slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+</code></pre><p>再次查看配置文件sentinel0.conf，会发现redis会自动将sentinel0.conf文件修改为如下内容</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>sentinel myid d66c226c4532b8e5d5927e0a9cd441d6c4c8f805
+sentinel deny-scripts-reconfig yes
+# Generated by CONFIG REWRITE
+protected-mode no
+port 26379
+user default on nopass ~* +@all
+dir &#34;/Users/chenxi/tools/redis-6.0.9&#34;
+# 以下2行是原配置文件中的
+sentinel monitor mymaster 127.0.0.1 6379 2
+sentinel down-after-milliseconds mymaster 10000
+sentinel config-epoch mymaster 0
+sentinel leader-epoch mymaster 0
+sentinel known-replica mymaster 127.0.0.1 6380
+sentinel current-epoch 0
+</code></pre></div><h3 id=34-启动另一个sentinel节点>3.4. 启动另一个sentinel节点</h3><p>复制sentinel0.conf为sentinel1.conf，并修改文件内容</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text># 修改myid
+sentinel myid d66c226c4532b8e5d5927e0a9cd441d6c4c8f806
+sentinel deny-scripts-reconfig yes
+# Generated by CONFIG REWRITE
+protected-mode no
+# 修改端口
+port 26380
+user default on nopass ~* +@all
+dir &#34;/Users/chenxi/tools/redis-6.0.9&#34;
+sentinel monitor mymaster 127.0.0.1 6379 2
+sentinel down-after-milliseconds mymaster 10000
+sentinel config-epoch mymaster 0
+sentinel leader-epoch mymaster 0
+sentinel known-replica mymaster 127.0.0.1 6380
+sentinel current-epoch 0
+</code></pre></div><p>启动另一个sentinel</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>redis-sentinel ./conf/sentinel1.conf
+</code></pre></div><p>控制台输出如下内容</p><pre><code class=language-log data-lang=log>5733:X 13 Mar 2021 21:43:04.770 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+5733:X 13 Mar 2021 21:43:04.770 # Redis version=6.0.9, bits=64, commit=00000000, modified=0, pid=5733, just started
+5733:X 13 Mar 2021 21:43:04.770 # Configuration loaded
+5733:X 13 Mar 2021 21:43:04.771 * Increased maximum number of open files to 10032 (it was originally set to 256).
+                _._
+           _.-``__ ''-._
+      _.-``    `.  `_.  ''-._           Redis 6.0.9 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._
+ (    '      ,       .-`  | `,    )     Running in sentinel mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 26380
+ |    `-._   `._    /     _.-'    |     PID: 5733
+  `-._    `-._  `-./  _.-'    _.-'
+ |`-._`-._    `-.__.-'    _.-'_.-'|
+ |    `-._`-._        _.-'_.-'    |           http://redis.io
+  `-._    `-._`-.__.-'_.-'    _.-'
+ |`-._`-._    `-.__.-'    _.-'_.-'|
+ |    `-._`-._        _.-'_.-'    |
+  `-._    `-._`-.__.-'_.-'    _.-'
+      `-._    `-.__.-'    _.-'
+          `-._        _.-'
+              `-.__.-'
+
+5733:X 13 Mar 2021 21:43:04.773 # Sentinel ID is d66c226c4532b8e5d5927e0a9cd441d6c4c8f806
+5733:X 13 Mar 2021 21:43:04.773 # +monitor master mymaster 127.0.0.1 6379 quorum 2
+5733:X 13 Mar 2021 21:43:06.400 * +sentinel sentinel d66c226c4532b8e5d5927e0a9cd441d6c4c8f805 127.0.0.1 26379 @ mymaster 127.0.0.1 6379
+</code></pre><p>sentinel0的console中新增一行</p><pre><code class=language-log data-lang=log>5643:X 13 Mar 2021 21:43:06.811 * +sentinel sentinel d66c226c4532b8e5d5927e0a9cd441d6c4c8f806 127.0.0.1 26380 @ mymaster 127.0.0.1 6379
+</code></pre><h3 id=35-测试>3.5. 测试</h3><p>强制将主shutdown</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>127.0.0.1:6379&gt; SHUTDOWN
+not connected&gt;
+</code></pre></div><p>sentinel0和sentinel1进行选主，选择sentinel1为主，sentinel0的控制台输出</p><pre><code class=language-log data-lang=log>5643:X 13 Mar 2021 21:48:00.672 # +sdown master mymaster 127.0.0.1 6379
+5643:X 13 Mar 2021 21:48:01.746 # +new-epoch 1
+5643:X 13 Mar 2021 21:48:01.748 # +vote-for-leader d66c226c4532b8e5d5927e0a9cd441d6c4c8f806 1
+5643:X 13 Mar 2021 21:48:01.781 # +odown master mymaster 127.0.0.1 6379 #quorum 2/2
+5643:X 13 Mar 2021 21:48:01.781 # Next failover delay: I will not start a failover before Sat Mar 13 21:54:02 2021
+5643:X 13 Mar 2021 21:48:02.132 # +config-update-from sentinel d66c226c4532b8e5d5927e0a9cd441d6c4c8f806 127.0.0.1 26380 @ mymaster 127.0.0.1 6379
+5643:X 13 Mar 2021 21:48:02.132 # +switch-master mymaster 127.0.0.1 6379 127.0.0.1 6380
+5643:X 13 Mar 2021 21:48:02.132 * +slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+5643:X 13 Mar 2021 21:48:12.143 # +sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+</code></pre><p>sentinel1的控制台输出</p><pre><code class=language-log data-lang=log>5733:X 13 Mar 2021 21:48:01.684 # +sdown master mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:01.741 # +odown master mymaster 127.0.0.1 6379 #quorum 2/2
+5733:X 13 Mar 2021 21:48:01.741 # +new-epoch 1
+5733:X 13 Mar 2021 21:48:01.741 # +try-failover master mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:01.744 # +vote-for-leader d66c226c4532b8e5d5927e0a9cd441d6c4c8f806 1
+5733:X 13 Mar 2021 21:48:01.748 # d66c226c4532b8e5d5927e0a9cd441d6c4c8f805 voted for d66c226c4532b8e5d5927e0a9cd441d6c4c8f806 1
+5733:X 13 Mar 2021 21:48:01.803 # +elected-leader master mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:01.803 # +failover-state-select-slave master mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:01.907 # +selected-slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:01.908 * +failover-state-send-slaveof-noone slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:01.983 * +failover-state-wait-promotion slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:02.073 # +promoted-slave slave 127.0.0.1:6380 127.0.0.1 6380 @ mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:02.073 # +failover-state-reconf-slaves master mymaster 127.0.0.1 6379
+5733:X 13 Mar 2021 21:48:02.128 # +failover-end master mymaster 127.0.0.1 6379
+# master切换为 127.0.0.1 6380 
+5733:X 13 Mar 2021 21:48:02.128 # +switch-master mymaster 127.0.0.1 6379 127.0.0.1 6380
+5733:X 13 Mar 2021 21:48:02.128 * +slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+5733:X 13 Mar 2021 21:48:12.178 # +sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+</code></pre><p>将原先的Redis从库设置为主库，查看127.0.0.1:6380的info信息</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>127.0.0.1:6380&gt; info replication
+<span style=color:#75715e># Replication</span>
+role:master
+connected_slaves:0
+master_replid:5f46a97eeca090af014d9bad88ca6728154b0d61
+master_replid2:e607b647b0f032121a00d490c992658ec1f0cf13
+master_repl_offset:402908
+second_repl_offset:355671
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:297583
+repl_backlog_histlen:105326
+</code></pre></div><p>尝试启动127.0.0.1:6379，并查看它的info信息</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>127.0.0.1:6379&gt; info replication
+<span style=color:#75715e># Replication</span>
+<span style=color:#75715e># 已经变成127.0.0.1:6380的从库</span>
+role:slave
+master_host:127.0.0.1
+master_port:6380
+master_link_status:up
+master_last_io_seconds_ago:0
+master_sync_in_progress:0
+slave_repl_offset:415888
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+master_replid:5f46a97eeca090af014d9bad88ca6728154b0d61
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:415888
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:410490
+repl_backlog_histlen:5399
+</code></pre></div><p>sentinel1</p><pre><code class=language-log data-lang=log>5733:X 13 Mar 2021 21:54:52.667 # -sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+5733:X 13 Mar 2021 21:55:02.589 * +convert-to-slave slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+</code></pre><p>sentinel0</p><pre><code class=language-log data-lang=log>5643:X 13 Mar 2021 21:54:52.888 # -sdown slave 127.0.0.1:6379 127.0.0.1 6379 @ mymaster 127.0.0.1 6380
+</code></pre><h2 id=4-redis-cluster走向分片>4. Redis Cluster：走向分片</h2><blockquote><p>解决容量问题</p></blockquote><h3 id=41-准备配置文件>4.1. 准备配置文件</h3><p>以redis.conf为例，修改以下内容</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>port 6379
+cluster-enabled yes
+cluster-config-file &#34;node-6379.conf&#34;
+logfile &#34;redis-server-6379.log&#34;
+dbfilename &#34;dump-6379.rdb&#34;
+daemonize yes
+</code></pre></div><p>准备6份Redis配置文件</p><h3 id=42-启动redis>4.2. 启动Redis</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-server ./tools/redis-conf/cluster/6379/redis6379.conf
+➜  ~ redis-server ./tools/redis-conf/cluster/6380/redis6380.conf
+➜  ~ redis-server ./tools/redis-conf/cluster/6381/redis6381.conf
+➜  ~ redis-server ./tools/redis-conf/cluster/6479/redis6479.conf
+➜  ~ redis-server ./tools/redis-conf/cluster/6480/redis6480.conf
+➜  ~ redis-server ./tools/redis-conf/cluster/6481/redis6481.conf
+</code></pre></div><p>查看启动好的Redis</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ ps -ax|grep redis
+<span style=color:#ae81ff>92406</span> ??         0:00.66 redis-server 127.0.0.1:6379 <span style=color:#f92672>[</span>cluster<span style=color:#f92672>]</span>
+<span style=color:#ae81ff>92510</span> ??         0:00.29 redis-server 127.0.0.1:6380 <span style=color:#f92672>[</span>cluster<span style=color:#f92672>]</span>
+<span style=color:#ae81ff>92520</span> ??         0:00.25 redis-server 127.0.0.1:6381 <span style=color:#f92672>[</span>cluster<span style=color:#f92672>]</span>
+<span style=color:#ae81ff>92529</span> ??         0:00.21 redis-server 127.0.0.1:6479 <span style=color:#f92672>[</span>cluster<span style=color:#f92672>]</span>
+<span style=color:#ae81ff>92537</span> ??         0:00.19 redis-server 127.0.0.1:6480 <span style=color:#f92672>[</span>cluster<span style=color:#f92672>]</span>
+<span style=color:#ae81ff>92545</span> ??         0:00.18 redis-server 127.0.0.1:6481 <span style=color:#f92672>[</span>cluster<span style=color:#f92672>]</span>
+</code></pre></div><h3 id=43-将节点相互连接>4.3. 将节点相互连接</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli
+127.0.0.1:6379&gt; CLUSTER NODES
+9fa624c3cf1bef0b7dd58347889505ff5982eed4 :6379@16379 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>0</span> connected
+
+<span style=color:#75715e># 节点相连</span>
+127.0.0.1:6379&gt; CLUSTER meet 127.0.0.1 <span style=color:#ae81ff>6380</span>
+OK
+127.0.0.1:6379&gt; CLUSTER meet 127.0.0.1 <span style=color:#ae81ff>6381</span>
+OK
+127.0.0.1:6379&gt; CLUSTER meet 127.0.0.1 <span style=color:#ae81ff>6479</span>
+OK
+127.0.0.1:6379&gt; CLUSTER meet 127.0.0.1 <span style=color:#ae81ff>6480</span>
+OK
+127.0.0.1:6379&gt; CLUSTER meet 127.0.0.1 <span style=color:#ae81ff>6481</span>
+OK
+
+<span style=color:#75715e># 查看集群中的节点</span>
+127.0.0.1:6379&gt; CLUSTER NODES
+139b6dc42bb27103b7ecc8f988dd5f67a418c8fe 127.0.0.1:6481@16481 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425114000</span> <span style=color:#ae81ff>5</span> connected
+9fa624c3cf1bef0b7dd58347889505ff5982eed4 127.0.0.1:6379@16379 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425113000</span> <span style=color:#ae81ff>1</span> connected
+efd49f7d7bc30d0e1246601898566a32db2ad919 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425114600</span> <span style=color:#ae81ff>0</span> connected
+512f4d306b5452efa5a48c4ff93e05ca7124f30c 127.0.0.1:6480@16480 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425115610</span> <span style=color:#ae81ff>4</span> connected
+c330c64e8c87828a81c86b74a3d4156a3342442d 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425112000</span> <span style=color:#ae81ff>2</span> connected
+b089bc4800fde9558d2f3b4402296a2bdb97c4e9 127.0.0.1:6479@16479 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425113000</span> <span style=color:#ae81ff>3</span> connected
+</code></pre></div><h3 id=44-槽位分派>4.4. 槽位分派</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6379</span> cluster addslots <span style=color:#f92672>{</span>0..5000<span style=color:#f92672>}</span>
+OK
+➜  ~ redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6380</span> cluster addslots <span style=color:#f92672>{</span>5001..10000<span style=color:#f92672>}</span>
+OK
+➜  ~ redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6381</span> cluster addslots <span style=color:#f92672>{</span>10001..16383<span style=color:#f92672>}</span>
+OK
+</code></pre></div><p>槽位分派后的节点情况</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli
+127.0.0.1:6379&gt; CLUSTER NODES
+139b6dc42bb27103b7ecc8f988dd5f67a418c8fe 127.0.0.1:6481@16481 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425590836</span> <span style=color:#ae81ff>5</span> connected
+9fa624c3cf1bef0b7dd58347889505ff5982eed4 127.0.0.1:6379@16379 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425590000</span> <span style=color:#ae81ff>1</span> connected 0-5000
+efd49f7d7bc30d0e1246601898566a32db2ad919 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425588810</span> <span style=color:#ae81ff>0</span> connected 5001-10000
+512f4d306b5452efa5a48c4ff93e05ca7124f30c 127.0.0.1:6480@16480 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425589821</span> <span style=color:#ae81ff>4</span> connected
+c330c64e8c87828a81c86b74a3d4156a3342442d 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425591846</span> <span style=color:#ae81ff>2</span> connected 10001-16383
+b089bc4800fde9558d2f3b4402296a2bdb97c4e9 127.0.0.1:6479@16479 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616425590000</span> <span style=color:#ae81ff>3</span> connected
+</code></pre></div><h3 id=45-主从复制>4.5. 主从复制</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6479</span> cluster replicate 9fa624c3cf1bef0b7dd58347889505ff5982eed4
+OK
+➜  ~ redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6480</span> cluster replicate efd49f7d7bc30d0e1246601898566a32db2ad919
+OK
+➜  ~ redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6481</span> cluster replicate c330c64e8c87828a81c86b74a3d4156a3342442d
+OK
+</code></pre></div><h3 id=46-测试集群>4.6. 测试集群</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>127.0.0.1:6379&gt; CLUSTER KEYSLOT name
+<span style=color:#f92672>(</span>integer<span style=color:#f92672>)</span> <span style=color:#ae81ff>5798</span>
+<span style=color:#75715e># 未按预期重定向</span>
+127.0.0.1:6379&gt; set name huey
+<span style=color:#f92672>(</span>error<span style=color:#f92672>)</span> MOVED <span style=color:#ae81ff>5798</span> 127.0.0.1:6380
+<span style=color:#75715e># 按集群模式启动客户端 指定-c参数</span>
+➜  ~ redis-cli -c
+127.0.0.1:6379&gt; CLUSTER KEYSLOT name
+<span style=color:#f92672>(</span>integer<span style=color:#f92672>)</span> <span style=color:#ae81ff>5798</span>
+127.0.0.1:6379&gt; set name huey
+-&gt; Redirected to slot <span style=color:#f92672>[</span>5798<span style=color:#f92672>]</span> located at 127.0.0.1:6380
+OK
+<span style=color:#75715e># 继续测试</span>
+127.0.0.1:6380&gt; set k1 v1
+-&gt; Redirected to slot <span style=color:#f92672>[</span>12706<span style=color:#f92672>]</span> located at 127.0.0.1:6381
+OK
+127.0.0.1:6381&gt; keys *
+1<span style=color:#f92672>)</span> <span style=color:#e6db74>&#34;k1&#34;</span>
+127.0.0.1:6381&gt; get name
+-&gt; Redirected to slot <span style=color:#f92672>[</span>5798<span style=color:#f92672>]</span> located at 127.0.0.1:6380
+<span style=color:#e6db74>&#34;huey&#34;</span>
+127.0.0.1:6380&gt; get k1
+-&gt; Redirected to slot <span style=color:#f92672>[</span>12706<span style=color:#f92672>]</span> located at 127.0.0.1:6381
+<span style=color:#e6db74>&#34;v1&#34;</span>
+127.0.0.1:6381&gt;
+</code></pre></div><h3 id=47-故障转移>4.7. 故障转移</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli
+127.0.0.1:6379&gt; cluster nodes
+86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509839957</span> <span style=color:#ae81ff>2</span> connected 10001-16383
+6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479@16479 slave d463742c293d0f3f688014b1dfd08e40fa416a64 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509838944</span> <span style=color:#ae81ff>0</span> connected
+9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509838000</span> <span style=color:#ae81ff>1</span> connected 5001-10000
+5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480@16480 slave 9c55b2973261b0acb96601818c7693eb1a4cb0a4 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509839000</span> <span style=color:#ae81ff>1</span> connected
+0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481@16481 slave 86530a225520347b3b268c6d16b1a1766cdf14d3 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509838000</span> <span style=color:#ae81ff>2</span> connected
+d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379@16379 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509838000</span> <span style=color:#ae81ff>0</span> connected 0-5000
+<span style=color:#75715e># 将6379-6479这对主从中的主shutdown</span>
+127.0.0.1:6379&gt; shutdown
+not connected&gt; exit
+
+➜  ~ redis-cli -p <span style=color:#ae81ff>6479</span>
+127.0.0.1:6479&gt; CLUSTER NODES
+5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480@16480 slave 9c55b2973261b0acb96601818c7693eb1a4cb0a4 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509869717</span> <span style=color:#ae81ff>1</span> connected
+<span style=color:#75715e># 登录到647可以观察到6479变成主</span>
+6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479@16479 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509867000</span> <span style=color:#ae81ff>6</span> connected 0-5000
+9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509868000</span> <span style=color:#ae81ff>1</span> connected 5001-10000
+86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509870729</span> <span style=color:#ae81ff>2</span> connected 10001-16383
+0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481@16481 slave 86530a225520347b3b268c6d16b1a1766cdf14d3 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509870000</span> <span style=color:#ae81ff>2</span> connected
+<span style=color:#75715e># 6379 失败</span>
+d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379@16379 master,fail - <span style=color:#ae81ff>1616509853512</span> <span style=color:#ae81ff>1616509848457</span> <span style=color:#ae81ff>0</span> disconnected
+127.0.0.1:6479&gt; exit
+
+<span style=color:#75715e># 重新启动6379</span>
+➜  ~ redis-server ./tools/redis-conf/cluster/6379/redis6379.conf
+➜  ~ redis-cli
+127.0.0.1:6379&gt; CLUSTER NODES
+86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509916509</span> <span style=color:#ae81ff>2</span> connected 10001-16383
+<span style=color:#75715e># 6379变成从</span>
+d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379@16379 myself,slave 6c787a3b61616914ad35dec54652c050fad2778c <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509917000</span> <span style=color:#ae81ff>6</span> connected
+6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479@16479 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509917000</span> <span style=color:#ae81ff>6</span> connected 0-5000
+0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481@16481 slave 86530a225520347b3b268c6d16b1a1766cdf14d3 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509915000</span> <span style=color:#ae81ff>2</span> connected
+9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509918533</span> <span style=color:#ae81ff>1</span> connected 5001-10000
+5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480@16480 slave 9c55b2973261b0acb96601818c7693eb1a4cb0a4 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616509917522</span> <span style=color:#ae81ff>1</span> connected
+</code></pre></div><p>6379从shutdown 到变成slave的日志：</p><pre><code class=language-log data-lang=log>18479:M 23 Mar 2021 22:30:51.788 # User requested shutdown...
+18479:M 23 Mar 2021 22:30:51.788 * Saving the final RDB snapshot before exiting.
+18479:M 23 Mar 2021 22:30:51.790 * DB saved on disk
+18479:M 23 Mar 2021 22:30:51.790 * Removing the pid file.
+18479:M 23 Mar 2021 22:30:51.791 # Redis is now ready to exit, bye bye...
+19707:C 23 Mar 2021 22:31:47.491 # oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+19707:C 23 Mar 2021 22:31:47.492 # Redis version=6.0.8, bits=64, commit=00000000, modified=0, pid=19707, just started
+19707:C 23 Mar 2021 22:31:47.492 # Configuration loaded
+19707:M 23 Mar 2021 22:31:47.494 * Increased maximum number of open files to 10032 (it was originally set to 256).
+19707:M 23 Mar 2021 22:31:47.496 * Node configuration loaded, I'm d463742c293d0f3f688014b1dfd08e40fa416a64
+                _._                                                  
+           _.-``__ ''-._                                             
+      _.-``    `.  `_.  ''-._           Redis 6.0.8 (00000000/0) 64 bit
+  .-`` .-```.  ```\/    _.,_ ''-._                                   
+ (    '      ,       .-`  | `,    )     Running in cluster mode
+ |`-._`-...-` __...-.``-._|'` _.-'|     Port: 6379
+ |    `-._   `._    /     _.-'    |     PID: 19707
+  `-._    `-._  `-./  _.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |           http://redis.io        
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+ |`-._`-._    `-.__.-'    _.-'_.-'|                                  
+ |    `-._`-._        _.-'_.-'    |                                  
+  `-._    `-._`-.__.-'_.-'    _.-'                                   
+      `-._    `-.__.-'    _.-'                                       
+          `-._        _.-'                                           
+              `-.__.-'                                               
+
+19707:M 23 Mar 2021 22:31:47.497 # Server initialized
+19707:M 23 Mar 2021 22:31:47.498 * Loading RDB produced by version 6.0.8
+19707:M 23 Mar 2021 22:31:47.498 * RDB age 56 seconds
+19707:M 23 Mar 2021 22:31:47.499 * RDB memory usage when created 2.60 Mb
+19707:M 23 Mar 2021 22:31:47.499 * DB loaded from disk: 0.001 seconds
+19707:M 23 Mar 2021 22:31:47.499 * Ready to accept connections
+19707:M 23 Mar 2021 22:31:47.500 # Configuration change detected. Reconfiguring myself as a replica of 6c787a3b61616914ad35dec54652c050fad2778c
+19707:S 23 Mar 2021 22:31:47.501 * Before turning into a replica, using my own master parameters to synthesize a cached master: I may be able to synchronize with the new master with just a partial transfer.
+19707:S 23 Mar 2021 22:31:47.501 # Cluster state changed: ok
+19707:S 23 Mar 2021 22:31:48.510 * Connecting to MASTER 127.0.0.1:6479
+19707:S 23 Mar 2021 22:31:48.511 * MASTER &lt;-&gt; REPLICA sync started
+19707:S 23 Mar 2021 22:31:48.512 * Non blocking connect for SYNC fired the event.
+19707:S 23 Mar 2021 22:31:48.513 * Master replied to PING, replication can continue...
+19707:S 23 Mar 2021 22:31:48.514 * Trying a partial resynchronization (request 8c4017406519ae80370ec1890172973ba6c638b3:1).
+19707:S 23 Mar 2021 22:31:48.516 * Full resync from master: bc0cc811f22b399f4c4df301324f68370816b1f5:1400
+19707:S 23 Mar 2021 22:31:48.517 * Discarding previously cached master state.
+19707:S 23 Mar 2021 22:31:48.599 * MASTER &lt;-&gt; REPLICA sync: receiving 176 bytes from master to disk
+19707:S 23 Mar 2021 22:31:48.599 * MASTER &lt;-&gt; REPLICA sync: Flushing old data
+19707:S 23 Mar 2021 22:31:48.600 * MASTER &lt;-&gt; REPLICA sync: Loading DB in memory
+19707:S 23 Mar 2021 22:31:48.601 * Loading RDB produced by version 6.0.8
+19707:S 23 Mar 2021 22:31:48.601 * RDB age 0 seconds
+19707:S 23 Mar 2021 22:31:48.601 * RDB memory usage when created 2.59 Mb
+19707:S 23 Mar 2021 22:31:48.602 * MASTER &lt;-&gt; REPLICA sync: Finished with success
+</code></pre><p>6479从主停止开始的日志</p><pre><code class=language-log data-lang=log>18572:S 23 Mar 2021 22:30:51.793 # Connection with master lost.
+18572:S 23 Mar 2021 22:30:51.794 * Caching the disconnected master state.
+18572:S 23 Mar 2021 22:30:52.600 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:52.601 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:52.602 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:53.614 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:53.614 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:53.615 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:54.623 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:54.624 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:54.625 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:55.637 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:55.638 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:55.639 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:56.647 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:56.647 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:56.648 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:57.658 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:57.659 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:57.660 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:58.672 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:58.673 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:58.674 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:30:59.683 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:30:59.685 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:30:59.687 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:00.698 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:00.698 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:00.699 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:01.710 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:01.711 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:01.712 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:02.723 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:02.724 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:02.725 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:03.739 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:03.739 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:03.740 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:04.750 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:04.750 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:04.751 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:05.764 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:05.764 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:05.765 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:06.777 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:06.778 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:06.779 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:07.789 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:07.790 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:07.791 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:08.695 * FAIL message received from 9c55b2973261b0acb96601818c7693eb1a4cb0a4 about d463742c293d0f3f688014b1dfd08e40fa416a64
+18572:S 23 Mar 2021 22:31:08.696 # Cluster state changed: fail
+18572:S 23 Mar 2021 22:31:08.703 # Start of election delayed for 819 milliseconds (rank #0, offset 1400).
+18572:S 23 Mar 2021 22:31:08.805 * Connecting to MASTER 127.0.0.1:6379
+18572:S 23 Mar 2021 22:31:08.805 * MASTER &lt;-&gt; REPLICA sync started
+18572:S 23 Mar 2021 22:31:08.806 # Error condition on socket for SYNC: Operation now in progress
+18572:S 23 Mar 2021 22:31:09.617 # Starting a failover election for epoch 6.
+# 故障转移，成为新的主
+18572:S 23 Mar 2021 22:31:09.620 # Failover election won: I'm the new master.
+18572:S 23 Mar 2021 22:31:09.620 # configEpoch set to 6 after successful failover
+18572:M 23 Mar 2021 22:31:09.621 * Discarding previously cached master state.
+18572:M 23 Mar 2021 22:31:09.621 # Setting secondary replication ID to 8d22f8655effb852aa9c3620725ede7a8573e3d8, valid up to offset: 1401. New replication ID is bc0cc811f22b399f4c4df301324f68370816b1f5
+18572:M 23 Mar 2021 22:31:09.622 # Cluster state changed: ok
+18572:M 23 Mar 2021 22:31:47.589 * Clear FAIL state for node d463742c293d0f3f688014b1dfd08e40fa416a64: master without slots is reachable again.
+18572:M 23 Mar 2021 22:31:48.514 * Replica 127.0.0.1:6379 asks for synchronization
+18572:M 23 Mar 2021 22:31:48.515 * Partial resynchronization not accepted: Replication ID mismatch (Replica asked for '8c4017406519ae80370ec1890172973ba6c638b3', my replication IDs are 'bc0cc811f22b399f4c4df301324f68370816b1f5' and '8d22f8655effb852aa9c3620725ede7a8573e3d8')
+18572:M 23 Mar 2021 22:31:48.515 * Starting BGSAVE for SYNC with target: disk
+18572:M 23 Mar 2021 22:31:48.516 * Background saving started by pid 19712
+19712:C 23 Mar 2021 22:31:48.517 * DB saved on disk
+18572:M 23 Mar 2021 22:31:48.598 * Background saving terminated with success
+18572:M 23 Mar 2021 22:31:48.599 * Synchronization with replica 127.0.0.1:6379 succeeded
+</code></pre><h3 id=48-集群伸缩>4.8. 集群伸缩</h3><p>增加新的Redis节点 6382和6482</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-server ./tools/redis-conf/cluster/6382/redis6382.conf
+➜  ~ redis-server ./tools/redis-conf/cluster/6482/redis6482.conf
+</code></pre></div><p>将新节点通过命令添加到新的集群中</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli --cluster add-node 127.0.0.1:6382 127.0.0.1:6379
+&gt;&gt;&gt; Adding node 127.0.0.1:6382 to cluster 127.0.0.1:6379
+&gt;&gt;&gt; Performing Cluster Check <span style=color:#f92672>(</span>using node 127.0.0.1:6379<span style=color:#f92672>)</span>
+M: d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379
+   slots:<span style=color:#f92672>[</span>0-5000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>5001</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+M: 86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381
+   slots:<span style=color:#f92672>[</span>10001-16383<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>6383</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+S: 6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates d463742c293d0f3f688014b1dfd08e40fa416a64
+S: 0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 86530a225520347b3b268c6d16b1a1766cdf14d3
+M: 9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380
+   slots:<span style=color:#f92672>[</span>5001-10000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>5000</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+S: 5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 9c55b2973261b0acb96601818c7693eb1a4cb0a4
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All nodes agree about slots configuration.
+&gt;&gt;&gt; Check <span style=color:#66d9ef>for</span> open slots...
+&gt;&gt;&gt; Check slots coverage...
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All <span style=color:#ae81ff>16384</span> slots covered.
+&gt;&gt;&gt; Send CLUSTER MEET to node 127.0.0.1:6382 to make it join the cluster.
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> New node added correctly.
+➜  ~ redis-cli --cluster add-node 127.0.0.1:6482 127.0.0.1:6379
+&gt;&gt;&gt; Adding node 127.0.0.1:6482 to cluster 127.0.0.1:6379
+&gt;&gt;&gt; Performing Cluster Check <span style=color:#f92672>(</span>using node 127.0.0.1:6379<span style=color:#f92672>)</span>
+M: d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379
+   slots:<span style=color:#f92672>[</span>0-5000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>5001</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+M: 86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381
+   slots:<span style=color:#f92672>[</span>10001-16383<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>6383</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+S: 6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates d463742c293d0f3f688014b1dfd08e40fa416a64
+S: 0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 86530a225520347b3b268c6d16b1a1766cdf14d3
+M: 9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380
+   slots:<span style=color:#f92672>[</span>5001-10000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>5000</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+M: 964b0c1120266440de20e593f8ea5a53ba013fdb 127.0.0.1:6382
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> master
+S: 5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 9c55b2973261b0acb96601818c7693eb1a4cb0a4
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All nodes agree about slots configuration.
+&gt;&gt;&gt; Check <span style=color:#66d9ef>for</span> open slots...
+&gt;&gt;&gt; Check slots coverage...
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All <span style=color:#ae81ff>16384</span> slots covered.
+&gt;&gt;&gt; Send CLUSTER MEET to node 127.0.0.1:6482 to make it join the cluster.
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> New node added correctly.
+</code></pre></div><p>reshard</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli --cluster reshard 127.0.0.1:6379
+&gt;&gt;&gt; Performing Cluster Check <span style=color:#f92672>(</span>using node 127.0.0.1:6379<span style=color:#f92672>)</span>
+M: d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379
+   slots:<span style=color:#f92672>[</span>0-6250<span style=color:#f92672>]</span>,<span style=color:#f92672>[</span>10001-11596<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>7847</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+M: 86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381
+   slots:<span style=color:#f92672>[</span>11597-16383<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>4787</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+S: 6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates d463742c293d0f3f688014b1dfd08e40fa416a64
+S: 0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 86530a225520347b3b268c6d16b1a1766cdf14d3
+M: 9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380
+   slots:<span style=color:#f92672>[</span>6251-10000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>3750</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+M: 964b0c1120266440de20e593f8ea5a53ba013fdb 127.0.0.1:6382
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> master
+M: f4083681abc73bd5f55beaac0dfc1afb121db5b6 127.0.0.1:6482
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> master
+S: 5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 9c55b2973261b0acb96601818c7693eb1a4cb0a4
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All nodes agree about slots configuration.
+&gt;&gt;&gt; Check <span style=color:#66d9ef>for</span> open slots...
+&gt;&gt;&gt; Check slots coverage...
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All <span style=color:#ae81ff>16384</span> slots covered.
+How many slots <span style=color:#66d9ef>do</span> you want to move <span style=color:#f92672>(</span>from <span style=color:#ae81ff>1</span> to 16384<span style=color:#f92672>)</span>? <span style=color:#ae81ff>4096</span>
+What is the receiving node ID? 964b0c1120266440de20e593f8ea5a53ba013fdb
+Please enter all the source node IDs.
+  Type <span style=color:#e6db74>&#39;all&#39;</span> to use all the nodes as source nodes <span style=color:#66d9ef>for</span> the hash slots.
+  Type <span style=color:#e6db74>&#39;done&#39;</span> once you entered all the source nodes IDs.
+Source node <span style=color:#75715e>#1: d463742c293d0f3f688014b1dfd08e40fa416a64</span>
+Source node <span style=color:#75715e>#2: 9c55b2973261b0acb96601818c7693eb1a4cb0a4</span>
+Source node <span style=color:#75715e>#3: 86530a225520347b3b268c6d16b1a1766cdf14d3</span>
+Source node <span style=color:#75715e>#4: done</span>
+...
+Do you want to proceed with the proposed reshard plan <span style=color:#f92672>(</span>yes/no<span style=color:#f92672>)</span>? yes
+...
+
+</code></pre></div><p>设置主从关系</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli -p <span style=color:#ae81ff>6482</span> cluster replicate 964b0c1120266440de20e593f8ea5a53ba013fdb
+OK
+</code></pre></div><p>测试集群</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli -c
+127.0.0.1:6379&gt; CLUSTER KEYSLOT haha
+<span style=color:#f92672>(</span>integer<span style=color:#f92672>)</span> <span style=color:#ae81ff>3662</span>
+127.0.0.1:6379&gt; set a b
+-&gt; Redirected to slot <span style=color:#f92672>[</span>15495<span style=color:#f92672>]</span> located at 127.0.0.1:6381
+OK
+</code></pre></div><p>删除节点</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli --cluster reshard 127.0.0.1:6382
+&gt;&gt;&gt; Performing Cluster Check <span style=color:#f92672>(</span>using node 127.0.0.1:6382<span style=color:#f92672>)</span>
+M: 964b0c1120266440de20e593f8ea5a53ba013fdb 127.0.0.1:6382
+   slots:<span style=color:#f92672>[</span>0-1249<span style=color:#f92672>]</span>,<span style=color:#f92672>[</span>5001-6250<span style=color:#f92672>]</span>,<span style=color:#f92672>[</span>10001-11596<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>4096</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+S: 6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates d463742c293d0f3f688014b1dfd08e40fa416a64
+M: 86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381
+   slots:<span style=color:#f92672>[</span>11597-16383<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>4787</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+S: f4083681abc73bd5f55beaac0dfc1afb121db5b6 127.0.0.1:6482
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 964b0c1120266440de20e593f8ea5a53ba013fdb
+S: 0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 86530a225520347b3b268c6d16b1a1766cdf14d3
+S: 5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480
+   slots: <span style=color:#f92672>(</span><span style=color:#ae81ff>0</span> slots<span style=color:#f92672>)</span> slave
+   replicates 9c55b2973261b0acb96601818c7693eb1a4cb0a4
+M: 9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380
+   slots:<span style=color:#f92672>[</span>6251-10000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>3750</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+M: d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379
+   slots:<span style=color:#f92672>[</span>1250-5000<span style=color:#f92672>]</span> <span style=color:#f92672>(</span><span style=color:#ae81ff>3751</span> slots<span style=color:#f92672>)</span> master
+   <span style=color:#ae81ff>1</span> additional replica<span style=color:#f92672>(</span>s<span style=color:#f92672>)</span>
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All nodes agree about slots configuration.
+&gt;&gt;&gt; Check <span style=color:#66d9ef>for</span> open slots...
+&gt;&gt;&gt; Check slots coverage...
+<span style=color:#f92672>[</span>OK<span style=color:#f92672>]</span> All <span style=color:#ae81ff>16384</span> slots covered.
+How many slots <span style=color:#66d9ef>do</span> you want to move <span style=color:#f92672>(</span>from <span style=color:#ae81ff>1</span> to 16384<span style=color:#f92672>)</span>? <span style=color:#ae81ff>4096</span>
+What is the receiving node ID? d463742c293d0f3f688014b1dfd08e40fa416a64
+Please enter all the source node IDs.
+  Type <span style=color:#e6db74>&#39;all&#39;</span> to use all the nodes as source nodes <span style=color:#66d9ef>for</span> the hash slots.
+  Type <span style=color:#e6db74>&#39;done&#39;</span> once you entered all the source nodes IDs.
+Source node <span style=color:#75715e>#1: 964b0c1120266440de20e593f8ea5a53ba013fdb</span>
+Source node <span style=color:#75715e>#2: done</span>
+</code></pre></div><p>查看节点信息，显示已经6382节点已经没有槽位分配了</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli
+127.0.0.1:6379&gt; CLUSTER NODES
+86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548392166</span> <span style=color:#ae81ff>2</span> connected 11597-16383
+d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379@16379 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548388000</span> <span style=color:#ae81ff>9</span> connected 0-6250 10001-11596
+6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479@16479 slave d463742c293d0f3f688014b1dfd08e40fa416a64 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548391154</span> <span style=color:#ae81ff>9</span> connected
+0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481@16481 slave 86530a225520347b3b268c6d16b1a1766cdf14d3 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548390000</span> <span style=color:#ae81ff>2</span> connected
+9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548390000</span> <span style=color:#ae81ff>1</span> connected 6251-10000
+964b0c1120266440de20e593f8ea5a53ba013fdb 127.0.0.1:6382@16382 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548389000</span> <span style=color:#ae81ff>8</span> connected
+f4083681abc73bd5f55beaac0dfc1afb121db5b6 127.0.0.1:6482@16482 slave d463742c293d0f3f688014b1dfd08e40fa416a64 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548391000</span> <span style=color:#ae81ff>9</span> connected
+5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480@16480 slave 9c55b2973261b0acb96601818c7693eb1a4cb0a4 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548390143</span> <span style=color:#ae81ff>1</span> connected
+</code></pre></div><p>删除节点</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>➜  ~ redis-cli --cluster del-node 127.0.0.1:6382 964b0c1120266440de20e593f8ea5a53ba013fdb
+&gt;&gt;&gt; Removing node 964b0c1120266440de20e593f8ea5a53ba013fdb from cluster 127.0.0.1:6382
+&gt;&gt;&gt; Sending CLUSTER FORGET messages to the cluster...
+&gt;&gt;&gt; Sending CLUSTER RESET SOFT to the deleted node.
+➜  ~ redis-cli --cluster del-node 127.0.0.1:6482 f4083681abc73bd5f55beaac0dfc1afb121db5b6
+&gt;&gt;&gt; Removing node f4083681abc73bd5f55beaac0dfc1afb121db5b6 from cluster 127.0.0.1:6482
+&gt;&gt;&gt; Sending CLUSTER FORGET messages to the cluster...
+&gt;&gt;&gt; Sending CLUSTER RESET SOFT to the deleted node.
+➜  ~ redis-cli
+127.0.0.1:6379&gt; CLUSTER NODES
+86530a225520347b3b268c6d16b1a1766cdf14d3 127.0.0.1:6381@16381 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548757000</span> <span style=color:#ae81ff>2</span> connected 11597-16383
+d463742c293d0f3f688014b1dfd08e40fa416a64 127.0.0.1:6379@16379 myself,master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548760000</span> <span style=color:#ae81ff>9</span> connected 0-6250 10001-11596
+6c787a3b61616914ad35dec54652c050fad2778c 127.0.0.1:6479@16479 slave d463742c293d0f3f688014b1dfd08e40fa416a64 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548760970</span> <span style=color:#ae81ff>9</span> connected
+0e6ea0a2cec7d05a0cd73cf45a5dfa49254cba12 127.0.0.1:6481@16481 slave 86530a225520347b3b268c6d16b1a1766cdf14d3 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548759960</span> <span style=color:#ae81ff>2</span> connected
+9c55b2973261b0acb96601818c7693eb1a4cb0a4 127.0.0.1:6380@16380 master - <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548758000</span> <span style=color:#ae81ff>1</span> connected 6251-10000
+5b29a600982955557bcfa8368a226e688c17e7b6 127.0.0.1:6480@16480 slave 9c55b2973261b0acb96601818c7693eb1a4cb0a4 <span style=color:#ae81ff>0</span> <span style=color:#ae81ff>1616548759000</span> <span style=color:#ae81ff>1</span> connected
+</code></pre></div><h3 id=49-命令总结>4.9. 命令总结</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># Redis 命令</span>
+&gt; CLUSTER meet 127.0.0.1 <span style=color:#ae81ff>6380</span> <span style=color:#75715e># 将节点相连</span>
+
+<span style=color:#75715e># 槽位分配</span>
+redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6379</span> cluster addslots <span style=color:#f92672>{</span>0..5000<span style=color:#f92672>}</span>
+
+<span style=color:#75715e># 主从复制</span>
+redis-cli -h 127.0.0.1 -p <span style=color:#ae81ff>6479</span> cluster replicate 9fa624c3cf1bef0b7dd58347889505ff5982eed4
+
+<span style=color:#75715e># 新增节点</span>
+redis-cli --cluster add-node 127.0.0.1:6382 127.0.0.1:6379
+
+<span style=color:#75715e># reshard</span>
+redis-cli --cluster reshard 127.0.0.1:6379
+
+<span style=color:#75715e># 删除节点</span>
+redis-cli --cluster del-node 127.0.0.1:6382 964b0c1120266440de20e593f8ea5a53ba013fdb
+</code></pre></div><h2 id=5-参考>5. 参考</h2><ul><li><a href=https://blog.csdn.net/weixin_40274679/article/details/113248371>https://blog.csdn.net/weixin_40274679/article/details/113248371</a></li></ul></div><footer class=post__footer><div class="post__tags tags clearfix"><svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5.0 11V3C0 1.5.8.8.8.8S1.5.0 3 0h8c1.5.0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 100-6 3 3 0 000 6z"/></svg><ul class=tags__list><li class=tags__item><a class="tags__link btn" href=/tags/redis/ rel=tag>Redis</a></li></ul></div></footer></article></main><div class="authorbox clearfix"><figure class=authorbox__avatar><img alt="陈曦 avatar" src=/image/WechatIMG2.jpeg class=avatar height=90 width=90></figure><div class=authorbox__header><span class=authorbox__name>About 陈曦</span></div><div class=authorbox__description>软件工程师</div></div><nav class="pager flex"><div class="pager__item pager__item--prev"><a class=pager__link href=/posts/first-blog/ rel=prev><span class=pager__subtitle>«&#8201;Previous</span><p class=pager__title>Hello World</p></a></div></nav></div></div><footer class=footer><div class="container footer__container flex"><div class=footer__copyright>&copy; 2021 chenxi.
+<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span></div></div></footer></div><script async defer src=/js/menu.js></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script></body></html>
