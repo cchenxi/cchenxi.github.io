@@ -30,8 +30,8 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
   mathjaxConfig = "TeX-AMS-MML_HTMLorMML" # Specify MathJax config
   googleFontsLink = "https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700" # Load Google Fonts
   highlightColor = "" # Deprecated in favor of .Site.Params.style.vars.highlightColor
-  customCSS = ["css/custom.css"] # Include custom CSS files
-  customJS = ["js/custom.js"] # Include custom JS files
+#   customCSS = ["css/custom.css"] # Include custom CSS files
+#   customJS = ["js/custom.js"] # Include custom JS files
 
 [Params.style.vars]
   highlightColor = "#e22d30" # Override highlight color
