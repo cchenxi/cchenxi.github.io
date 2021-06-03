@@ -19,4 +19,4 @@ menu: main
 - java 并发编程实战
 - 数据密集型应用系统设计
 
-![头像](http://qu434u38f.hd-bkt.clouddn.com/WechatIMG2.jpeg)
+![头像](/image/WechatIMG2.jpeg)

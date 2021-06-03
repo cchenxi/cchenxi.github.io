@@ -9,7 +9,7 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 [Author] # Used in authorbox
   name = "陈曦"
   bio = "软件工程师"
-  avatar = "http://qu434u38f.hd-bkt.clouddn.com/WechatIMG2.jpeg"
+  avatar = "/image/WechatIMG2.jpeg"
 
 [Params]
   subtitle = "" # Deprecated in favor of .Site.Params.logo.subtitle
@@ -42,7 +42,7 @@ googleAnalytics = "" # Enable Google Analytics by entering your tracking id
   fontFamilySecondary = "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace"
 
 [Params.logo]
-  image = "http://qu434u38f.hd-bkt.clouddn.com/WechatIMG2.jpeg" # Logo image. Path relative to "static"
+  image = "/image/WechatIMG2.jpeg" # Logo image. Path relative to "static"
   title = "陈曦的技术博客" # Logo title, otherwise will use site title
   subtitle = "" # Logo subtitle
 
