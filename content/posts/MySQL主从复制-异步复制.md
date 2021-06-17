@@ -425,9 +425,11 @@ show slave status;
 
 可以看到 `Slave_IO_Running` 和 `Slave_SQL_Running` 都已经是 `No` 状态，说明同步已经停止。
 
+```text
+
 +-----------------+--+
 |Slave_IO_Running |No|
 +-----------------+--+
 |Slave_SQL_Running|No|
 +-----------------+--+
-
+```
