@@ -5,8 +5,6 @@ draft: false
 tags:
 - Redis
 - cache
-categories:
-- 分布式缓存
 ---
 
 ## 1. Redis数据持久化

@@ -6,8 +6,6 @@ tags:
 - Java
 - GC
 - JVM
-categories:
-- JVM
 ---
 
 为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
