@@ -107,7 +107,7 @@ binlog-format=Row
 
 使用 `docker ps -a | grep mysql` 查看已有的MySQL容器。下图中可以看到已经启动了3个MySQL实例。
 
-![img.png](src/main/resources/docker-container-mysql.png)
+![img.png](/image/20210617/docker-container-mysql.png)
 
 ## 2. 传统的复制（异步复制 ）
 
