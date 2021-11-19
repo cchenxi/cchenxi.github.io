@@ -1,14 +1,102 @@
-<!doctype html><html class=no-js lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><title>GC日志解读 - 陈曦的技术博客</title><script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script><meta name=description content><meta property="og:title" content="GC日志解读"><meta property="og:description" content="为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
+<!doctype html><html class=no-js lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<title>GC日志解读 - 陈曦的技术博客</title>
+<script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script>
+<meta name=description content>
+<meta property="og:title" content="GC日志解读">
+<meta property="og:description" content="为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
 1. 测试环境 1.1. 操作系统及jdk版本 ➜ 01jvm git:(main) ✗ java -version java version &#34;1.8.0_131&#34; Java(TM) SE Runtime Environment (build 1.8.0_131-b11) Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode) 1.2. 测试代码  测试代码来源： https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java
- import java.util.Random; import java.util.concurrent.TimeUnit; import java.util.concurrent.atomic.LongAdder; /* 演示GC日志生成与解读 */ public class GCLogAnalysis { private static Random random = new Random(); public static void main(String[] args) { // 当前毫秒时间戳  long startMillis = System.currentTimeMillis(); // 持续运行毫秒数; 可根据需要进行修改  long timeoutMillis = TimeUnit."><meta property="og:type" content="article"><meta property="og:url" content="https://cchenxi.github.io/posts/gc%E6%97%A5%E5%BF%97%E8%A7%A3%E8%AF%BB/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-05T11:04:00+08:00"><meta property="article:modified_time" content="2021-06-05T11:04:00+08:00"><meta itemprop=name content="GC日志解读"><meta itemprop=description content="为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
+ import java.util.Random; import java.util.concurrent.TimeUnit; import java.util.concurrent.atomic.LongAdder; /* 演示GC日志生成与解读 */ public class GCLogAnalysis { private static Random random = new Random(); public static void main(String[] args) { // 当前毫秒时间戳  long startMillis = System.currentTimeMillis(); // 持续运行毫秒数; 可根据需要进行修改  long timeoutMillis = TimeUnit.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://cchenxi.github.io/posts/gc%E6%97%A5%E5%BF%97%E8%A7%A3%E8%AF%BB/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2021-06-05T11:04:00+08:00">
+<meta property="article:modified_time" content="2021-06-05T11:04:00+08:00">
+<meta itemprop=name content="GC日志解读">
+<meta itemprop=description content="为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
 1. 测试环境 1.1. 操作系统及jdk版本 ➜ 01jvm git:(main) ✗ java -version java version &#34;1.8.0_131&#34; Java(TM) SE Runtime Environment (build 1.8.0_131-b11) Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode) 1.2. 测试代码  测试代码来源： https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java
- import java.util.Random; import java.util.concurrent.TimeUnit; import java.util.concurrent.atomic.LongAdder; /* 演示GC日志生成与解读 */ public class GCLogAnalysis { private static Random random = new Random(); public static void main(String[] args) { // 当前毫秒时间戳  long startMillis = System.currentTimeMillis(); // 持续运行毫秒数; 可根据需要进行修改  long timeoutMillis = TimeUnit."><meta itemprop=datePublished content="2021-06-05T11:04:00+08:00"><meta itemprop=dateModified content="2021-06-05T11:04:00+08:00"><meta itemprop=wordCount content="5870"><meta itemprop=keywords content="Java,GC,JVM,"><meta name=twitter:card content="summary"><meta name=twitter:title content="GC日志解读"><meta name=twitter:description content="为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
+ import java.util.Random; import java.util.concurrent.TimeUnit; import java.util.concurrent.atomic.LongAdder; /* 演示GC日志生成与解读 */ public class GCLogAnalysis { private static Random random = new Random(); public static void main(String[] args) { // 当前毫秒时间戳  long startMillis = System.currentTimeMillis(); // 持续运行毫秒数; 可根据需要进行修改  long timeoutMillis = TimeUnit."><meta itemprop=datePublished content="2021-06-05T11:04:00+08:00">
+<meta itemprop=dateModified content="2021-06-05T11:04:00+08:00">
+<meta itemprop=wordCount content="5870">
+<meta itemprop=keywords content="Java,GC,JVM,">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="GC日志解读">
+<meta name=twitter:description content="为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。
 1. 测试环境 1.1. 操作系统及jdk版本 ➜ 01jvm git:(main) ✗ java -version java version &#34;1.8.0_131&#34; Java(TM) SE Runtime Environment (build 1.8.0_131-b11) Java HotSpot(TM) 64-Bit Server VM (build 25.131-b11, mixed mode) 1.2. 测试代码  测试代码来源： https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java
- import java.util.Random; import java.util.concurrent.TimeUnit; import java.util.concurrent.atomic.LongAdder; /* 演示GC日志生成与解读 */ public class GCLogAnalysis { private static Random random = new Random(); public static void main(String[] args) { // 当前毫秒时间戳  long startMillis = System.currentTimeMillis(); // 持续运行毫秒数; 可根据需要进行修改  long timeoutMillis = TimeUnit."><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=dns-prefetch href=//fonts.googleapis.com><link rel=dns-prefetch href=//fonts.gstatic.com><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700"><link rel=stylesheet href=/css/style.css><link rel="shortcut icon" href=/favicon.ico></head><body class=body><div class="container container--outer"><header class=header><div class="container header__container"><div class="logo logo--mixed"><a class=logo__link href=/ title=陈曦的技术博客 rel=home><div class="logo__item logo__imagebox"><img class=logo__img src=/image/WechatIMG2.jpeg></div><div class="logo__item logo__text"><div class=logo__title>陈曦的技术博客</div></div></a></div><div class=divider></div></div></header><div class="wrapper flex"><div class=primary><main class=main role=main><article class=post><header class=post__header><h1 class=post__title>GC日志解读</h1><div class="post__meta meta"><div class="meta__item-author meta__item"><svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>陈曦</span></div><div class="meta__item-datetime meta__item"><svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2021-06-05T11:04:00+08:00>2021-06-05</time></div></div></header><div class="post__toc toc"><div class=toc__title>Page content</div><div class=toc__menu><nav id=TableOfContents><ul><li><a href=#1-测试环境>1. 测试环境</a><ul><li><a href=#11-操作系统及jdk版本>1.1. 操作系统及jdk版本</a></li><li><a href=#12-测试代码>1.2. 测试代码</a></li></ul></li><li><a href=#2-演示不同gc策略>2. 演示不同GC策略</a><ul><li><a href=#21-并行gc的演示>2.1 并行GC的演示</a></li><li><a href=#22-串行gc的演示>2.2 串行GC的演示</a></li><li><a href=#23-cms-gc的演示>2.3 CMS GC的演示</a></li><li><a href=#24-g1-gc的演示>2.4 G1 GC的演示</a></li></ul></li></ul></nav></div></div><div class="content post__content clearfix"><p>为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。</p><h2 id=1-测试环境>1. 测试环境</h2><h3 id=11-操作系统及jdk版本>1.1. 操作系统及jdk版本</h3><p><img src=/image/20210605/os-info.jpg alt=操作系统信息></p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>➜  01jvm git:<span style=color:#f92672>(</span>main<span style=color:#f92672>)</span> ✗ java -version
+ import java.util.Random; import java.util.concurrent.TimeUnit; import java.util.concurrent.atomic.LongAdder; /* 演示GC日志生成与解读 */ public class GCLogAnalysis { private static Random random = new Random(); public static void main(String[] args) { // 当前毫秒时间戳  long startMillis = System.currentTimeMillis(); // 持续运行毫秒数; 可根据需要进行修改  long timeoutMillis = TimeUnit.">
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link rel=dns-prefetch href=//fonts.googleapis.com>
+<link rel=dns-prefetch href=//fonts.gstatic.com>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+<link rel=stylesheet href=/css/style.css>
+<link rel="shortcut icon" href=/favicon.ico>
+</head>
+<body class=body>
+<div class="container container--outer">
+<header class=header>
+<div class="container header__container">
+<div class="logo logo--mixed">
+<a class=logo__link href=/ title=陈曦的技术博客 rel=home>
+<div class="logo__item logo__imagebox">
+<img class=logo__img src=/image/WechatIMG2.jpeg>
+</div><div class="logo__item logo__text">
+<div class=logo__title>陈曦的技术博客</div>
+</div>
+</a>
+</div>
+<div class=divider></div>
+</div>
+</header>
+<div class="wrapper flex">
+<div class=primary>
+<main class=main role=main>
+<article class=post>
+<header class=post__header>
+<h1 class=post__title>GC日志解读</h1>
+<div class="post__meta meta"><div class="meta__item-author meta__item">
+<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>陈曦</span>
+</div>
+<div class="meta__item-datetime meta__item">
+<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2021-06-05T11:04:00+08:00>2021-06-05</time></div></div>
+</header>
+<div class="post__toc toc">
+<div class=toc__title>Page content</div>
+<div class=toc__menu>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#1-测试环境>1. 测试环境</a>
+<ul>
+<li><a href=#11-操作系统及jdk版本>1.1. 操作系统及jdk版本</a></li>
+<li><a href=#12-测试代码>1.2. 测试代码</a></li>
+</ul>
+</li>
+<li><a href=#2-演示不同gc策略>2. 演示不同GC策略</a>
+<ul>
+<li><a href=#21-并行gc的演示>2.1 并行GC的演示</a></li>
+<li><a href=#22-串行gc的演示>2.2 串行GC的演示</a></li>
+<li><a href=#23-cms-gc的演示>2.3 CMS GC的演示</a></li>
+<li><a href=#24-g1-gc的演示>2.4 G1 GC的演示</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div><div class="content post__content clearfix">
+<p>为深入学习GC（Garbage Collection，垃圾回收），本文将使用一段测试代码来测试不同的GC策略下的执行情况，并对输出的GC日志做简要分析。</p>
+<h2 id=1-测试环境>1. 测试环境</h2>
+<h3 id=11-操作系统及jdk版本>1.1. 操作系统及jdk版本</h3>
+<p><img src=/image/20210605/os-info.jpg alt=操作系统信息></p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash>➜  01jvm git:<span style=color:#f92672>(</span>main<span style=color:#f92672>)</span> ✗ java -version
 java version <span style=color:#e6db74>&#34;1.8.0_131&#34;</span>
 Java<span style=color:#f92672>(</span>TM<span style=color:#f92672>)</span> SE Runtime Environment <span style=color:#f92672>(</span>build 1.8.0_131-b11<span style=color:#f92672>)</span>
 Java HotSpot<span style=color:#f92672>(</span>TM<span style=color:#f92672>)</span> 64-Bit Server VM <span style=color:#f92672>(</span>build 25.131-b11, mixed mode<span style=color:#f92672>)</span>
-</code></pre></div><h3 id=12-测试代码>1.2. 测试代码</h3><blockquote><p>测试代码来源： <a href=https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java>https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java</a></p></blockquote><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> java.util.Random<span style=color:#f92672>;</span>
+</code></pre></div><h3 id=12-测试代码>1.2. 测试代码</h3>
+<blockquote>
+<p>测试代码来源： <a href=https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java>https://github.com/JavaCourse00/JavaCourseCodes/blob/main/01jvm/GCLogAnalysis.java</a></p>
+</blockquote>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=color:#f92672>import</span> java.util.Random<span style=color:#f92672>;</span>
 <span style=color:#f92672>import</span> java.util.concurrent.TimeUnit<span style=color:#f92672>;</span>
 <span style=color:#f92672>import</span> java.util.concurrent.atomic.LongAdder<span style=color:#f92672>;</span>
 <span style=color:#75715e>/*
@@ -70,9 +158,11 @@ Java HotSpot<span style=color:#f92672>(</span>TM<span style=color:#f92672>)</spa
         <span style=color:#66d9ef>return</span> result<span style=color:#f92672>;</span>
     <span style=color:#f92672>}</span>
 <span style=color:#f92672>}</span>
-</code></pre></div><p>编译测试代码</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>javac GCLogAnalysis.java
-</code></pre></div><p>在控制台执行如下命令，打印GC信息</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+PrintGCDetails GCLogAnalysis
-</code></pre></div><pre><code class=language-log data-lang=log>正在执行...
+</code></pre></div><p>编译测试代码</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>javac GCLogAnalysis.java
+</code></pre></div><p>在控制台执行如下命令，打印GC信息</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+PrintGCDetails GCLogAnalysis
+</code></pre></div><pre tabindex=0><code class=language-log data-lang=log>正在执行...
 [GC (Allocation Failure) [PSYoungGen: 65252K-&gt;10747K(76288K)] 65252K-&gt;19386K(251392K), 0.0064988 secs] [Times: user=0.02 sys=0.02, real=0.01 secs]
 [GC (Allocation Failure) [PSYoungGen: 76210K-&gt;10738K(141824K)] 84850K-&gt;40942K(316928K), 0.0119404 secs] [Times: user=0.02 sys=0.04, real=0.01 secs]
 [GC (Allocation Failure) [PSYoungGen: 141810K-&gt;10742K(141824K)] 172014K-&gt;85396K(316928K), 0.0169297 secs] [Times: user=0.03 sys=0.08, real=0.02 secs]
@@ -94,8 +184,12 @@ Heap
   object space 501760K, 60% used [0x00000006c0000000,0x00000006d28e9dd8,0x00000006dea00000)
  Metaspace       used 2551K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 276K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre><p>还可以使用以下命令，将GC信息输出到日志文件中，同时打印GC的详细信息和时间戳</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -Xloggc:gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps GCLogAnalysis
-</code></pre></div><h2 id=2-演示不同gc策略>2. 演示不同GC策略</h2><h3 id=21-并行gc的演示>2.1 并行GC的演示</h3><h4 id=211-默认不配置堆内存参数>2.1.1 默认不配置堆内存参数</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># input</span>
+</code></pre><p>还可以使用以下命令，将GC信息输出到日志文件中，同时打印GC的详细信息和时间戳</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -Xloggc:gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps GCLogAnalysis
+</code></pre></div><h2 id=2-演示不同gc策略>2. 演示不同GC策略</h2>
+<h3 id=21-并行gc的演示>2.1 并行GC的演示</h3>
+<h4 id=211-默认不配置堆内存参数>2.1.1 默认不配置堆内存参数</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell><span style=color:#75715e># input</span>
 java -XX:+PrintGCDetails -XX:+PrintGCDateStamps GCLogAnalysis
 
 <span style=color:#75715e># output</span>
@@ -121,7 +215,25 @@ Heap
   object space 494080K, 59% used <span style=color:#f92672>[</span>0x00000006c0000000,0x00000006d1e56fa8,0x00000006de280000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>不指定垃圾收集器 默认使用的是并行GC</p><p>以上GC日志显示，程序执行期间共发生11次GC 其中包含3次Full GC</p><p>第一次Young GC，[GC (Allocation Failure) [PSYoungGen: 65536K->10730K(76288K)] 65536K->22808K(251392K), 0.0094137 secs] [Times: user=0.02 sys=0.04, real=0.01 secs]</p><p>Young区堆内存使用 65536K->10730K(76288K)，减少54806K。</p><p>整个堆内存使用 65536K->22808K(251392K)，减少42728K。</p><p>初始的堆内存使用量相同，是因为一次GC也没有发生时，Old区尚未使用。</p><p>Young区的减少 大于 整个堆区的减少，因为有可能有约十几m的对象进入了Old区。Young GC发生时，一部分对象被晋升到了Old区，一部分对象被复制到了未使用的Survivor区。</p><p>经过4次Young GC之后，堆内存的使用已经较大，程序继续执行就触发了一次Full GC</p><p>[Full GC (Ergonomics) [PSYoungGen: 10742K->0K(272896K)] [ParOldGen: 118306K->117582K(252928K)] 129048K->117582K(525824K), [Metaspace: 2689K->2689K(1056768K)], 0.0275435 secs] [Times: user=0.15 sys=0.01, real=0.03 secs]</p><p>Full GC发生时</p><p>Young区10742K->0K(272896K)</p><p>Old区118306K->117582K(252928K) ，Old区变化较少</p><p>整个堆129048K->117582K(525824K)</p><p>Metaspace 无变化</p><p>在不配置堆内存参数的情况下 默认使用的堆内存大小是物理内存的1/4，本机配置为8核16G 所以此处默认的堆内存大小为4G，查看GC日志之后发现执行的命令如下：</p><p>CommandLine flags: -XX:InitialHeapSize=268435456 -XX:MaxHeapSize=4294967296 -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseParallelGC</p><p>只是Xmx的配置是4G Xms的配置为256m</p><h4 id=212-配置512m堆内存>2.1.2 配置512m堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseParallelGC -Xms512m -Xmx512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>不指定垃圾收集器 默认使用的是并行GC</p>
+<p>以上GC日志显示，程序执行期间共发生11次GC 其中包含3次Full GC</p>
+<p>第一次Young GC，[GC (Allocation Failure) [PSYoungGen: 65536K->10730K(76288K)] 65536K->22808K(251392K), 0.0094137 secs] [Times: user=0.02 sys=0.04, real=0.01 secs]</p>
+<p>Young区堆内存使用 65536K->10730K(76288K)，减少54806K。</p>
+<p>整个堆内存使用 65536K->22808K(251392K)，减少42728K。</p>
+<p>初始的堆内存使用量相同，是因为一次GC也没有发生时，Old区尚未使用。</p>
+<p>Young区的减少 大于 整个堆区的减少，因为有可能有约十几m的对象进入了Old区。Young GC发生时，一部分对象被晋升到了Old区，一部分对象被复制到了未使用的Survivor区。</p>
+<p>经过4次Young GC之后，堆内存的使用已经较大，程序继续执行就触发了一次Full GC</p>
+<p>[Full GC (Ergonomics) [PSYoungGen: 10742K->0K(272896K)] [ParOldGen: 118306K->117582K(252928K)] 129048K->117582K(525824K), [Metaspace: 2689K->2689K(1056768K)], 0.0275435 secs] [Times: user=0.15 sys=0.01, real=0.03 secs]</p>
+<p>Full GC发生时</p>
+<p>Young区10742K->0K(272896K)</p>
+<p>Old区118306K->117582K(252928K) ，Old区变化较少</p>
+<p>整个堆129048K->117582K(525824K)</p>
+<p>Metaspace 无变化</p>
+<p>在不配置堆内存参数的情况下 默认使用的堆内存大小是物理内存的1/4，本机配置为8核16G 所以此处默认的堆内存大小为4G，查看GC日志之后发现执行的命令如下：</p>
+<p>CommandLine flags: -XX:InitialHeapSize=268435456 -XX:MaxHeapSize=4294967296 -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseParallelGC</p>
+<p>只是Xmx的配置是4G Xms的配置为256m</p>
+<h4 id=212-配置512m堆内存>2.1.2 配置512m堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseParallelGC -Xms512m -Xmx512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T21:48:09.230-0800: 0.168: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> <span style=color:#f92672>[</span>PSYoungGen: 131584K-&gt;21496K<span style=color:#f92672>(</span>153088K<span style=color:#f92672>)]</span> 131584K-&gt;50443K<span style=color:#f92672>(</span>502784K<span style=color:#f92672>)</span>, 0.0223842 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.03 sys<span style=color:#f92672>=</span>0.11, real<span style=color:#f92672>=</span>0.02 secs<span style=color:#f92672>]</span>
 2020-10-27T21:48:09.296-0800: 0.234: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> <span style=color:#f92672>[</span>PSYoungGen: 153080K-&gt;21500K<span style=color:#f92672>(</span>153088K<span style=color:#f92672>)]</span> 182027K-&gt;92156K<span style=color:#f92672>(</span>502784K<span style=color:#f92672>)</span>, 0.0301401 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.06 sys<span style=color:#f92672>=</span>0.15, real<span style=color:#f92672>=</span>0.03 secs<span style=color:#f92672>]</span>
@@ -155,7 +267,25 @@ Heap
   object space 349696K, 81% used <span style=color:#f92672>[</span>0x00000007a0000000,0x00000007b173c3c0,0x00000007b5580000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><blockquote><p>2020-10-27T21:48:09.230-0800: 0.168: [GC (Allocation Failure) [PSYoungGen: 131584K->21496K(153088K)] 131584K->50443K(502784K), 0.0223842 secs] [Times: user=0.03 sys=0.11, real=0.02 secs]</p></blockquote><p>第一次Young GC</p><p>年轻代使用的堆内存从131584K 降低到 21496K ，减少110088K，Young区的容量为153088K</p><p>堆内存使用从151584K 降低至 50443K，减少101141K ，整个堆容量为502784K</p><p>共有8947K大小的对象从年轻代中晋升到老年代。</p><p>GC耗时约22ms</p><blockquote><p>2020-10-27T21:48:09.707-0800: 0.645: [Full GC (Ergonomics) [PSYoungGen: 37958K->0K(116736K)] [ParOldGen: 290979K->229237K(349696K)] 328937K->229237K(466432K), [Metaspace: 2689K->2689K(1056768K)], 0.0638496 secs] [Times: user=0.37 sys=0.02, real=0.07 secs]</p></blockquote><p>第一次Full GC</p><p>年轻代使用的堆内存从37958K减少到0</p><p>老年代使用的堆内存从290979K 减少到 229237K 销毁掉61742K大小的对象</p><p>整个堆内存的使用从328937K 减少到 229237K</p><p>元数据区没有变化</p><p>GC耗时约64ms 应用程序暂停70ms</p><h4 id=213-使用2g堆内存>2.1.3 使用2g堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseParallelGC -Xms2g -Xmx2g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><blockquote>
+<p>2020-10-27T21:48:09.230-0800: 0.168: [GC (Allocation Failure) [PSYoungGen: 131584K->21496K(153088K)] 131584K->50443K(502784K), 0.0223842 secs] [Times: user=0.03 sys=0.11, real=0.02 secs]</p>
+</blockquote>
+<p>第一次Young GC</p>
+<p>年轻代使用的堆内存从131584K 降低到 21496K ，减少110088K，Young区的容量为153088K</p>
+<p>堆内存使用从151584K 降低至 50443K，减少101141K ，整个堆容量为502784K</p>
+<p>共有8947K大小的对象从年轻代中晋升到老年代。</p>
+<p>GC耗时约22ms</p>
+<blockquote>
+<p>2020-10-27T21:48:09.707-0800: 0.645: [Full GC (Ergonomics) [PSYoungGen: 37958K->0K(116736K)] [ParOldGen: 290979K->229237K(349696K)] 328937K->229237K(466432K), [Metaspace: 2689K->2689K(1056768K)], 0.0638496 secs] [Times: user=0.37 sys=0.02, real=0.07 secs]</p>
+</blockquote>
+<p>第一次Full GC</p>
+<p>年轻代使用的堆内存从37958K减少到0</p>
+<p>老年代使用的堆内存从290979K 减少到 229237K 销毁掉61742K大小的对象</p>
+<p>整个堆内存的使用从328937K 减少到 229237K</p>
+<p>元数据区没有变化</p>
+<p>GC耗时约64ms 应用程序暂停70ms</p>
+<h4 id=213-使用2g堆内存>2.1.3 使用2g堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseParallelGC -Xms2g -Xmx2g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T22:03:40.498-0800: 0.375: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> <span style=color:#f92672>[</span>PSYoungGen: 524800K-&gt;87035K<span style=color:#f92672>(</span>611840K<span style=color:#f92672>)]</span> 524800K-&gt;141649K<span style=color:#f92672>(</span>2010112K<span style=color:#f92672>)</span>, 0.0619776 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.07 sys<span style=color:#f92672>=</span>0.33, real<span style=color:#f92672>=</span>0.06 secs<span style=color:#f92672>]</span>
 2020-10-27T22:03:40.660-0800: 0.537: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> <span style=color:#f92672>[</span>PSYoungGen: 611835K-&gt;87030K<span style=color:#f92672>(</span>611840K<span style=color:#f92672>)]</span> 666449K-&gt;258132K<span style=color:#f92672>(</span>2010112K<span style=color:#f92672>)</span>, 0.0911996 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.11 sys<span style=color:#f92672>=</span>0.48, real<span style=color:#f92672>=</span>0.09 secs<span style=color:#f92672>]</span>
@@ -172,7 +302,10 @@ Heap
   object space 1398272K, 36% used <span style=color:#f92672>[</span>0x0000000740000000,0x000000075f040e58,0x0000000795580000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>可以观察到未发生Full GC，GC之后老年代的使用率只有36%</p><p>创建的对象数也随着堆内存的增大而增多。</p><h4 id=214-使用128m堆内存>2.1.4 使用128m堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseParallelGC -Xms128m -Xmx128m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>可以观察到未发生Full GC，GC之后老年代的使用率只有36%</p>
+<p>创建的对象数也随着堆内存的增大而增多。</p>
+<h4 id=214-使用128m堆内存>2.1.4 使用128m堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseParallelGC -Xms128m -Xmx128m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T22:09:29.946-0800: 0.112: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> <span style=color:#f92672>[</span>PSYoungGen: 33280K-&gt;5098K<span style=color:#f92672>(</span>38400K<span style=color:#f92672>)]</span> 33280K-&gt;13540K<span style=color:#f92672>(</span>125952K<span style=color:#f92672>)</span>, 0.0055672 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.01 sys<span style=color:#f92672>=</span>0.02, real<span style=color:#f92672>=</span>0.01 secs<span style=color:#f92672>]</span>
 2020-10-27T22:09:29.960-0800: 0.126: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> <span style=color:#f92672>[</span>PSYoungGen: 37794K-&gt;5110K<span style=color:#f92672>(</span>38400K<span style=color:#f92672>)]</span> 46236K-&gt;25958K<span style=color:#f92672>(</span>125952K<span style=color:#f92672>)</span>, 0.0095484 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.02 sys<span style=color:#f92672>=</span>0.05, real<span style=color:#f92672>=</span>0.00 secs<span style=color:#f92672>]</span>
@@ -209,7 +342,25 @@ Heap
   object space 87552K, 99% used <span style=color:#f92672>[</span>0x00000007b8000000,0x00000007bd511c70,0x00000007bd580000<span style=color:#f92672>)</span>
  Metaspace       used 2719K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 297K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>当堆内存降低至128m时，系统不仅频频发生Full GC，而且产生了<code>java.lang.OutOfMemoryError</code></p><p>而且在发生Full GC的时候，整个老年代及堆区被回收的对象很少，GC之后新生代Eden区的使用率达到98% 老年代使用率达到99%</p><h4 id=215-并行gc总结>2.1.5 并行GC总结</h4><ol><li>使用<code>-XX:+UseParallelGC</code>指定GC为并行GC</li><li>年轻代使用“标记-复制”算法</li><li>老年代使用“标记-清除-整理”算法</li><li>使用<code>-XX:ParallelGCThreads=N</code>来指定 GC 线程数，默认是机器CPU的核数</li><li>适用于多核的服务器，主要的目标是增加吞吐量<ul><li>GC期间，所有的CPU内核都在并行清理垃圾，总的暂停时间更短</li><li>GC间隔，没有GC线程运行，不会消耗系统资源</li></ul></li><li>默认情况下会启用并行压缩，需要关闭的话则要指定参数<code>-XX:+UseParallelOldGC</code></li></ol><h3 id=22-串行gc的演示>2.2 串行GC的演示</h3><h4 id=221-使用512m堆内存>2.2.1 使用512m堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms512m -Xmx512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>当堆内存降低至128m时，系统不仅频频发生Full GC，而且产生了<code>java.lang.OutOfMemoryError</code></p>
+<p>而且在发生Full GC的时候，整个老年代及堆区被回收的对象很少，GC之后新生代Eden区的使用率达到98% 老年代使用率达到99%</p>
+<h4 id=215-并行gc总结>2.1.5 并行GC总结</h4>
+<ol>
+<li>使用<code>-XX:+UseParallelGC</code>指定GC为并行GC</li>
+<li>年轻代使用“标记-复制”算法</li>
+<li>老年代使用“标记-清除-整理”算法</li>
+<li>使用<code>-XX:ParallelGCThreads=N</code>来指定 GC 线程数，默认是机器CPU的核数</li>
+<li>适用于多核的服务器，主要的目标是增加吞吐量
+<ul>
+<li>GC期间，所有的CPU内核都在并行清理垃圾，总的暂停时间更短</li>
+<li>GC间隔，没有GC线程运行，不会消耗系统资源</li>
+</ul>
+</li>
+<li>默认情况下会启用并行压缩，需要关闭的话则要指定参数<code>-XX:+UseParallelOldGC</code></li>
+</ol>
+<h3 id=22-串行gc的演示>2.2 串行GC的演示</h3>
+<h4 id=221-使用512m堆内存>2.2.1 使用512m堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms512m -Xmx512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-26T22:16:34.202-0800: 0.169: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-26T22:16:34.202-0800: 0.169: <span style=color:#f92672>[</span>DefNew: 139450K-&gt;17472K<span style=color:#f92672>(</span>157248K<span style=color:#f92672>)</span>, 0.0360407 secs<span style=color:#f92672>]</span> 139450K-&gt;54983K<span style=color:#f92672>(</span>506816K<span style=color:#f92672>)</span>, 0.0361185 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.02 sys<span style=color:#f92672>=</span>0.01, real<span style=color:#f92672>=</span>0.03 secs<span style=color:#f92672>]</span>
 2020-10-26T22:16:34.278-0800: 0.246: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-26T22:16:34.279-0800: 0.246: <span style=color:#f92672>[</span>DefNew: 157201K-&gt;17469K<span style=color:#f92672>(</span>157248K<span style=color:#f92672>)</span>, 0.0431319 secs<span style=color:#f92672>]</span> 194713K-&gt;103739K<span style=color:#f92672>(</span>506816K<span style=color:#f92672>)</span>, 0.0431980 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.04 sys<span style=color:#f92672>=</span>0.02, real<span style=color:#f92672>=</span>0.05 secs<span style=color:#f92672>]</span>
@@ -234,7 +385,50 @@ Heap
    the space 349568K,  98% used <span style=color:#f92672>[</span>0x00000007aaaa0000, 0x00000007bfa08f30, 0x00000007bfa09000, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>首先观察日志最后Heap部分数据</p><p>程序执行完成后，堆内存中</p><ol><li>年轻代，总容量157248K，使用5654K，</li><li>老年代，总容量349568K，使用343459</li><li>元数据区，总计使用了2695K 容量是4486K JVM保证可用的大小是4864K 保留空间1G左右</li></ol><p><strong>Minor GC分析</strong></p><p>Minor GC事件的内容：</p><blockquote><p>2020-10-26T22:16:34.202-0800: 0.169: [GC (Allocation Failure) 2020-10-26T22:16:34.202-0800: 0.169: [DefNew: 139450K->17472K(157248K), 0.0360407 secs] 139450K->54983K(506816K), 0.0361185 secs] [Times: user=0.02 sys=0.01, real=0.03 secs]</p></blockquote><p>发生在JVM启动后的0.169秒，GC的原因是 <code>Allocation Failure</code> 分配内存失败，年轻代中没有空间存放新生成的对象。</p><p>DefNew 这个名字代表的是: <em>单线程(single-threaded), 采用标记复制(mark-copy)算法的, 使整个JVM暂停运行(stop-the-world)的年轻代(Young generation) 垃圾收集器(garbage collector)</em></p><p>139450K->17472K 表示垃圾收集前后的年轻代使用量，157248K 表示年轻代的总空间大小，GC使年轻代的使用率从88% 降至 11%，减少 121978K</p><p>0.0360407 secs 表示GC的持续时间</p><p>139450K->54983K 表示垃圾收集前后堆内存的使用情况，506816K表示 堆内存的总可用空间大小，GC使整个堆的使用率从 27% 降至 11%，减少 84467K</p><p>0.0360407 secs 表示GC的持续时间，可以发现 GC完整耗时与GC在年轻代的耗时相同，说明JVM启动后首次GC耗时均发生在年轻代上</p><p>也可以比较垃圾收集前年轻代的使用量和整个堆的使用量，发现两者相同，说明在GC之前老年代中并没有对象。</p><p>GC前后堆内存的使用量比年轻代的使用量减少的要小，可以得出从年轻代提升至老年代的对象约为 121978K - 84467K = 37511K</p><p>Times: user=0.02 sys=0.01, real=0.03 secs 表示此次GC事件的持续时间，30ms</p><p>user表示所有GC线程消耗的CPU时间</p><p>sys表示系统调用和系统等待事件消耗的时间</p><p>real表示应用程序暂停的时间</p><p>在本次GC中，因为使用的是串行GC，且只有单线程，所以在这里 real = user + sys</p><p><strong>Full GC分析</strong></p><p>Full GC事件内容：</p><blockquote><p>2020-10-26T22:16:34.676-0800: 0.644: [GC (Allocation Failure) 2020-10-26T22:16:34.676-0800: 0.644: [DefNew: 157247K->157247K(157248K), 0.0000357 secs]2020-10-26T22:16:34.676-0800: 0.644: [Tenured: 314687K->277678K(349568K), 0.0734037 secs] 471935K->277678K(506816K), [Metaspace: 2689K->2689K(1056768K)], 0.0735272 secs] [Times: user=0.07 sys=0.00, real=0.08 secs]</p></blockquote><p>2020-10-26T22:16:34.676-0800: 0.644: [DefNew: 157247K->157247K(157248K), 0.0000357 secs]</p><p>内存分配失败导致了一次年轻代GC，但是此次年轻代GC堆内存的使用量没有变化，使用量达到99.99%，年轻代几乎用满，且耗时几乎为0</p><p>2020-10-26T22:16:34.676-0800: 0.644: [Tenured: 314687K->277678K(349568K), 0.0734037 secs]</p><p>Tenured 代表清理老年代使用的垃圾收集器名称，单线程的STW垃圾收集器，使用的算法为 标记‐清除‐整理(mark‐sweep‐ compact ) 。</p><p>GC前后老年的使用量从314687K降至277678K，总的老年代空间大小为349568K</p><p>GC之后，老年代的堆内存使用量下降37009K 使用率从90% 降至 79%</p><p>471935K->277678K(506816K) 表示堆内存在GC前后的使用量，使用量下降 194257 使用率从93% 下降至 55%</p><p>这次Full GC之后老年代的使用量和整个堆的使用量相同，那么是否是年轻代的使用量在Tenured之后变为了0，只是日志体现的是Tenured之前的年轻代GC，所以在日志中没有体现？？？</p><p>[Metaspace: 2689K->2689K(1056768K)]</p><p>元数据库内存使用没有变化</p><p>[Times: user=0.07 sys=0.00, real=0.08 secs]</p><p>此次GC合计耗时80ms</p><h4 id=222-使用128m堆内存>2.2.2 使用128m堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms128m -Xmx128m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>首先观察日志最后Heap部分数据</p>
+<p>程序执行完成后，堆内存中</p>
+<ol>
+<li>年轻代，总容量157248K，使用5654K，</li>
+<li>老年代，总容量349568K，使用343459</li>
+<li>元数据区，总计使用了2695K 容量是4486K JVM保证可用的大小是4864K 保留空间1G左右</li>
+</ol>
+<p><strong>Minor GC分析</strong></p>
+<p>Minor GC事件的内容：</p>
+<blockquote>
+<p>2020-10-26T22:16:34.202-0800: 0.169: [GC (Allocation Failure) 2020-10-26T22:16:34.202-0800: 0.169: [DefNew: 139450K->17472K(157248K), 0.0360407 secs] 139450K->54983K(506816K), 0.0361185 secs] [Times: user=0.02 sys=0.01, real=0.03 secs]</p>
+</blockquote>
+<p>发生在JVM启动后的0.169秒，GC的原因是 <code>Allocation Failure</code> 分配内存失败，年轻代中没有空间存放新生成的对象。</p>
+<p>DefNew 这个名字代表的是: <em>单线程(single-threaded), 采用标记复制(mark-copy)算法的, 使整个JVM暂停运行(stop-the-world)的年轻代(Young generation) 垃圾收集器(garbage collector)</em></p>
+<p>139450K->17472K 表示垃圾收集前后的年轻代使用量，157248K 表示年轻代的总空间大小，GC使年轻代的使用率从88% 降至 11%，减少 121978K</p>
+<p>0.0360407 secs 表示GC的持续时间</p>
+<p>139450K->54983K 表示垃圾收集前后堆内存的使用情况，506816K表示 堆内存的总可用空间大小，GC使整个堆的使用率从 27% 降至 11%，减少 84467K</p>
+<p>0.0360407 secs 表示GC的持续时间，可以发现 GC完整耗时与GC在年轻代的耗时相同，说明JVM启动后首次GC耗时均发生在年轻代上</p>
+<p>也可以比较垃圾收集前年轻代的使用量和整个堆的使用量，发现两者相同，说明在GC之前老年代中并没有对象。</p>
+<p>GC前后堆内存的使用量比年轻代的使用量减少的要小，可以得出从年轻代提升至老年代的对象约为 121978K - 84467K = 37511K</p>
+<p>Times: user=0.02 sys=0.01, real=0.03 secs 表示此次GC事件的持续时间，30ms</p>
+<p>user表示所有GC线程消耗的CPU时间</p>
+<p>sys表示系统调用和系统等待事件消耗的时间</p>
+<p>real表示应用程序暂停的时间</p>
+<p>在本次GC中，因为使用的是串行GC，且只有单线程，所以在这里 real = user + sys</p>
+<p><strong>Full GC分析</strong></p>
+<p>Full GC事件内容：</p>
+<blockquote>
+<p>2020-10-26T22:16:34.676-0800: 0.644: [GC (Allocation Failure) 2020-10-26T22:16:34.676-0800: 0.644: [DefNew: 157247K->157247K(157248K), 0.0000357 secs]2020-10-26T22:16:34.676-0800: 0.644: [Tenured: 314687K->277678K(349568K), 0.0734037 secs] 471935K->277678K(506816K), [Metaspace: 2689K->2689K(1056768K)], 0.0735272 secs] [Times: user=0.07 sys=0.00, real=0.08 secs]</p>
+</blockquote>
+<p>2020-10-26T22:16:34.676-0800: 0.644: [DefNew: 157247K->157247K(157248K), 0.0000357 secs]</p>
+<p>内存分配失败导致了一次年轻代GC，但是此次年轻代GC堆内存的使用量没有变化，使用量达到99.99%，年轻代几乎用满，且耗时几乎为0</p>
+<p>2020-10-26T22:16:34.676-0800: 0.644: [Tenured: 314687K->277678K(349568K), 0.0734037 secs]</p>
+<p>Tenured 代表清理老年代使用的垃圾收集器名称，单线程的STW垃圾收集器，使用的算法为 标记‐清除‐整理(mark‐sweep‐ compact ) 。</p>
+<p>GC前后老年的使用量从314687K降至277678K，总的老年代空间大小为349568K</p>
+<p>GC之后，老年代的堆内存使用量下降37009K 使用率从90% 降至 79%</p>
+<p>471935K->277678K(506816K) 表示堆内存在GC前后的使用量，使用量下降 194257 使用率从93% 下降至 55%</p>
+<p>这次Full GC之后老年代的使用量和整个堆的使用量相同，那么是否是年轻代的使用量在Tenured之后变为了0，只是日志体现的是Tenured之前的年轻代GC，所以在日志中没有体现？？？</p>
+<p>[Metaspace: 2689K->2689K(1056768K)]</p>
+<p>元数据库内存使用没有变化</p>
+<p>[Times: user=0.07 sys=0.00, real=0.08 secs]</p>
+<p>此次GC合计耗时80ms</p>
+<h4 id=222-使用128m堆内存>2.2.2 使用128m堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms128m -Xmx128m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T11:12:39.633-0800: 0.104: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T11:12:39.633-0800: 0.105: <span style=color:#f92672>[</span>DefNew: 34944K-&gt;4351K<span style=color:#f92672>(</span>39296K<span style=color:#f92672>)</span>, 0.0091493 secs<span style=color:#f92672>]</span> 34944K-&gt;12494K<span style=color:#f92672>(</span>126720K<span style=color:#f92672>)</span>, 0.0092266 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.01 sys<span style=color:#f92672>=</span>0.01, real<span style=color:#f92672>=</span>0.01 secs<span style=color:#f92672>]</span>
 2020-10-27T11:12:39.658-0800: 0.130: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T11:12:39.658-0800: 0.130: <span style=color:#f92672>[</span>DefNew: 39284K-&gt;4349K<span style=color:#f92672>(</span>39296K<span style=color:#f92672>)</span>, 0.0170365 secs<span style=color:#f92672>]</span> 47427K-&gt;25816K<span style=color:#f92672>(</span>126720K<span style=color:#f92672>)</span>, 0.0171250 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.03 sys<span style=color:#f92672>=</span>0.01, real<span style=color:#f92672>=</span>0.02 secs<span style=color:#f92672>]</span>
@@ -273,7 +467,16 @@ Heap
    the space 87424K,  99% used <span style=color:#f92672>[</span>0x00000007baaa0000, 0x00000007bffcd648, 0x00000007bffcd800, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2719K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 297K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>可以看出程序执行导致了堆内存溢出 触发了 <code>java.lang.OutOfMemoryError</code></p><ol><li>年轻代 总容量39296K 使用38914K Eden区使用率达到100%</li><li>老年代 使用率99%</li><li>堆内存几乎用满，无法再分配对象尝试Full GC失败 导致OOM</li></ol><p>首先触发了6次Minor GC，清理年轻代</p><p>随后发生了两次 GC （未标明是Full GC）,既清理了年轻代，也清理了老年代和元数据区，只是在几乎未对年轻代清理的情况下 老年代使用量竟让上涨了。</p><h4 id=223-使用1g堆内存>2.2.3 使用1g堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms1g -Xmx1g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>可以看出程序执行导致了堆内存溢出 触发了 <code>java.lang.OutOfMemoryError</code></p>
+<ol>
+<li>年轻代 总容量39296K 使用38914K Eden区使用率达到100%</li>
+<li>老年代 使用率99%</li>
+<li>堆内存几乎用满，无法再分配对象尝试Full GC失败 导致OOM</li>
+</ol>
+<p>首先触发了6次Minor GC，清理年轻代</p>
+<p>随后发生了两次 GC （未标明是Full GC）,既清理了年轻代，也清理了老年代和元数据区，只是在几乎未对年轻代清理的情况下 老年代使用量竟让上涨了。</p>
+<h4 id=223-使用1g堆内存>2.2.3 使用1g堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms1g -Xmx1g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T21:11:18.890-0800: 0.250: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T21:11:18.890-0800: 0.250: <span style=color:#f92672>[</span>DefNew: 279616K-&gt;34944K<span style=color:#f92672>(</span>314560K<span style=color:#f92672>)</span>, 0.0496792 secs<span style=color:#f92672>]</span> 279616K-&gt;82661K<span style=color:#f92672>(</span>1013632K<span style=color:#f92672>)</span>, 0.0497561 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.03 sys<span style=color:#f92672>=</span>0.02, real<span style=color:#f92672>=</span>0.04 secs<span style=color:#f92672>]</span>
 2020-10-27T21:11:18.993-0800: 0.354: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T21:11:18.993-0800: 0.354: <span style=color:#f92672>[</span>DefNew: 314560K-&gt;34943K<span style=color:#f92672>(</span>314560K<span style=color:#f92672>)</span>, 0.0700488 secs<span style=color:#f92672>]</span> 362277K-&gt;160948K<span style=color:#f92672>(</span>1013632K<span style=color:#f92672>)</span>, 0.0701214 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.04 sys<span style=color:#f92672>=</span>0.03, real<span style=color:#f92672>=</span>0.07 secs<span style=color:#f92672>]</span>
@@ -293,7 +496,10 @@ Heap
    the space 699072K,  87% used <span style=color:#f92672>[</span>0x0000000795550000, 0x00000007ba85b978, 0x00000007ba85ba00, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>使用1g堆内存后，共发生8次Minor GC，未发生老年代GC，GC时间从50ms到70ms不等。</p><p>随着堆内存的配置越来越大，程序产生的对象也随之增多。</p><h4 id=224-使用2g堆内存>2.2.4 使用2g堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms2g -Xmx2g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>使用1g堆内存后，共发生8次Minor GC，未发生老年代GC，GC时间从50ms到70ms不等。</p>
+<p>随着堆内存的配置越来越大，程序产生的对象也随之增多。</p>
+<h4 id=224-使用2g堆内存>2.2.4 使用2g堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms2g -Xmx2g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T21:23:03.643-0800: 0.387: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T21:23:03.643-0800: 0.387: <span style=color:#f92672>[</span>DefNew: 559232K-&gt;69888K<span style=color:#f92672>(</span>629120K<span style=color:#f92672>)</span>, 0.0887940 secs<span style=color:#f92672>]</span> 559232K-&gt;150907K<span style=color:#f92672>(</span>2027264K<span style=color:#f92672>)</span>, 0.0888694 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.06 sys<span style=color:#f92672>=</span>0.04, real<span style=color:#f92672>=</span>0.09 secs<span style=color:#f92672>]</span>
 2020-10-27T21:23:03.840-0800: 0.584: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T21:23:03.840-0800: 0.584: <span style=color:#f92672>[</span>DefNew: 629120K-&gt;69887K<span style=color:#f92672>(</span>629120K<span style=color:#f92672>)</span>, 0.1088363 secs<span style=color:#f92672>]</span> 710139K-&gt;272051K<span style=color:#f92672>(</span>2027264K<span style=color:#f92672>)</span>, 0.1089175 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.06 sys<span style=color:#f92672>=</span>0.05, real<span style=color:#f92672>=</span>0.10 secs<span style=color:#f92672>]</span>
@@ -309,7 +515,10 @@ Heap
    the space 1398144K,  32% used <span style=color:#f92672>[</span>0x000000076aaa0000, 0x0000000786489ad0, 0x0000000786489c00, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>这次只发生了4次Minor GC 耗时在80到100ms之间，可见耗时比堆内存为1g时要多</p><p>程序生成的对象却没有明显地增多</p><h4 id=225-使用4g堆内存>2.2.5 使用4g堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms4g -Xmx4g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>这次只发生了4次Minor GC 耗时在80到100ms之间，可见耗时比堆内存为1g时要多</p>
+<p>程序生成的对象却没有明显地增多</p>
+<h4 id=225-使用4g堆内存>2.2.5 使用4g堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseSerialGC -Xms4g -Xmx4g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T21:42:05.545-0800: 0.673: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T21:42:05.545-0800: 0.673: <span style=color:#f92672>[</span>DefNew: 1118528K-&gt;139775K<span style=color:#f92672>(</span>1258304K<span style=color:#f92672>)</span>, 0.1543860 secs<span style=color:#f92672>]</span> 1118528K-&gt;243637K<span style=color:#f92672>(</span>4054528K<span style=color:#f92672>)</span>, 0.1544662 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.09 sys<span style=color:#f92672>=</span>0.07, real<span style=color:#f92672>=</span>0.15 secs<span style=color:#f92672>]</span>
 2020-10-27T21:42:05.906-0800: 1.035: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T21:42:05.906-0800: 1.035: <span style=color:#f92672>[</span>DefNew: 1258303K-&gt;139775K<span style=color:#f92672>(</span>1258304K<span style=color:#f92672>)</span>, 0.1673658 secs<span style=color:#f92672>]</span> 1362165K-&gt;399506K<span style=color:#f92672>(</span>4054528K<span style=color:#f92672>)</span>, 0.1674364 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.09 sys<span style=color:#f92672>=</span>0.07, real<span style=color:#f92672>=</span>0.17 secs<span style=color:#f92672>]</span>
@@ -323,7 +532,19 @@ Heap
    the space 2796224K,   9% used <span style=color:#f92672>[</span>0x0000000715550000, 0x00000007252f4b58, 0x00000007252f4c00, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>GC执行时间边长，但是生成的对象并没有明显增长</p><h4 id=226-串行gc总结>2.2.6 串行GC总结</h4><ol><li>使用<code>-XX:+UseSerialGC</code>指定GC算法</li><li>对年轻代使用 “标记-复制”算法</li><li>对老年代使用“标记-清除-整理”算法</li><li>单线程，所以对年轻代和老年代的处理都会"stop the world"，停止应用线程进行GC</li><li>不能使用多核CPU，暂停时间也更长</li><li>优点：CPU的利用率较高</li></ol><h3 id=23-cms-gc的演示>2.3 CMS GC的演示</h3><h4 id=231-使用512m堆内存配置>2.3.1 使用512m堆内存配置</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseConcMarkSweepGC -Xms512m -Xmx512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>GC执行时间边长，但是生成的对象并没有明显增长</p>
+<h4 id=226-串行gc总结>2.2.6 串行GC总结</h4>
+<ol>
+<li>使用<code>-XX:+UseSerialGC</code>指定GC算法</li>
+<li>对年轻代使用 “标记-复制”算法</li>
+<li>对老年代使用“标记-清除-整理”算法</li>
+<li>单线程，所以对年轻代和老年代的处理都会"stop the world"，停止应用线程进行GC</li>
+<li>不能使用多核CPU，暂停时间也更长</li>
+<li>优点：CPU的利用率较高</li>
+</ol>
+<h3 id=23-cms-gc的演示>2.3 CMS GC的演示</h3>
+<h4 id=231-使用512m堆内存配置>2.3.1 使用512m堆内存配置</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseConcMarkSweepGC -Xms512m -Xmx512m -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-27T22:39:39.458-0800: 0.169: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T22:39:39.458-0800: 0.169: <span style=color:#f92672>[</span>ParNew: 139776K-&gt;17470K<span style=color:#f92672>(</span>157248K<span style=color:#f92672>)</span>, 0.0213819 secs<span style=color:#f92672>]</span> 139776K-&gt;48287K<span style=color:#f92672>(</span>506816K<span style=color:#f92672>)</span>, 0.0214863 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.04 sys<span style=color:#f92672>=</span>0.10, real<span style=color:#f92672>=</span>0.03 secs<span style=color:#f92672>]</span>
 2020-10-27T22:39:39.508-0800: 0.219: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-27T22:39:39.508-0800: 0.219: <span style=color:#f92672>[</span>ParNew: 157246K-&gt;17472K<span style=color:#f92672>(</span>157248K<span style=color:#f92672>)</span>, 0.0333864 secs<span style=color:#f92672>]</span> 188063K-&gt;94437K<span style=color:#f92672>(</span>506816K<span style=color:#f92672>)</span>, 0.0334829 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.08 sys<span style=color:#f92672>=</span>0.14, real<span style=color:#f92672>=</span>0.04 secs<span style=color:#f92672>]</span>
@@ -374,7 +595,38 @@ Heap
  concurrent mark-sweep generation total 349568K, used 312120K <span style=color:#f92672>[</span>0x00000007aaaa0000, 0x00000007c0000000, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><blockquote><p>2020-10-27T22:39:39.458-0800: 0.169: [GC (Allocation Failure) 2020-10-27T22:39:39.458-0800: 0.169: [ParNew: 139776K->17470K(157248K), 0.0213819 secs] 139776K->48287K(506816K), 0.0214863 secs] [Times: user=0.04 sys=0.10, real=0.03 secs]</p></blockquote><p>第一次年轻代GC</p><p>使用的GC算法是 ParNew算法</p><blockquote><p>2020-10-27T22:39:39.746-0800: 0.457: [GC (CMS Initial Mark) [1 CMS-initial-mark: 209132K(349568K)] 226891K(506816K), 0.0004101 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p><p>2020-10-27T22:39:39.746-0800: 0.457: [CMS-concurrent-mark-start]</p><p>2020-10-27T22:39:39.748-0800: 0.459: [CMS-concurrent-mark: 0.002/0.002 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p><p>2020-10-27T22:39:39.748-0800: 0.459: [CMS-concurrent-preclean-start]</p><p>2020-10-27T22:39:39.749-0800: 0.460: [CMS-concurrent-preclean: 0.001/0.001 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p><p>2020-10-27T22:39:39.749-0800: 0.460: [CMS-concurrent-abortable-preclean-start]</p><p>2020-10-27T22:39:39.945-0800: 0.656: [CMS-concurrent-abortable-preclean: 0.003/0.197 secs] [Times: user=0.93 sys=0.09, real=0.20 secs]</p><p>2020-10-27T22:39:39.946-0800: 0.657: [GC (CMS Final Remark) [YG occupancy: 20360 K (157248 K)]2020-10-27T22:39:39.946-0800: 0.657: [Rescan (parallel) , 0.0004848 secs]2020-10-27T22:39:39.946-0800: 0.657: [weak refs processing, 0.0000389 secs]2020-10-27T22:39:39.946-0800: 0.657: [class unloading, 0.0003198 secs]2020-10-27T22:39:39.946-0800: 0.657: [scrub symbol table, 0.0004675 secs]2020-10-27T22:39:39.947-0800: 0.658: [scrub string table, 0.0001561 secs][1 CMS-remark: 345694K(349568K)] 366054K(506816K), 0.0015994 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p><p>2020-10-27T22:39:39.947-0800: 0.658: [CMS-concurrent-sweep-start]</p><p>2020-10-27T22:39:39.948-0800: 0.659: [CMS-concurrent-sweep: 0.001/0.001 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p><p>2020-10-27T22:39:39.948-0800: 0.659: [CMS-concurrent-reset-start]</p><p>2020-10-27T22:39:39.949-0800: 0.660: [CMS-concurrent-reset: 0.001/0.001 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p></blockquote><p>第一次 CMS GC，可以看出CMS GC共有6个步骤</p><ol><li>CMS Initial Mark 初始标记</li><li>CMS-concurrent-mark 并发标记</li><li>CMS-concurrent-preclean 并发预清理</li><li>CMS Final Remark 最终标记</li><li>CMS-concurrent-sweep 并发清除</li><li>CMS-concurrent-reset 并发重置</li></ol><p>其中初始标记和最终标记阶段没有concurrent，表示在此期间将会发生STW，停止业务线程</p><p>其余阶段均可以与业务线程并发执行，此时默认的执行GC的线程数为机器CPU核心数的1/4。</p><h4 id=232-使用1g堆内存>2.3.2 使用1g堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseConcMarkSweepGC -Xms1g -Xmx1g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><blockquote>
+<p>2020-10-27T22:39:39.458-0800: 0.169: [GC (Allocation Failure) 2020-10-27T22:39:39.458-0800: 0.169: [ParNew: 139776K->17470K(157248K), 0.0213819 secs] 139776K->48287K(506816K), 0.0214863 secs] [Times: user=0.04 sys=0.10, real=0.03 secs]</p>
+</blockquote>
+<p>第一次年轻代GC</p>
+<p>使用的GC算法是 ParNew算法</p>
+<blockquote>
+<p>2020-10-27T22:39:39.746-0800: 0.457: [GC (CMS Initial Mark) [1 CMS-initial-mark: 209132K(349568K)] 226891K(506816K), 0.0004101 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p>
+<p>2020-10-27T22:39:39.746-0800: 0.457: [CMS-concurrent-mark-start]</p>
+<p>2020-10-27T22:39:39.748-0800: 0.459: [CMS-concurrent-mark: 0.002/0.002 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p>
+<p>2020-10-27T22:39:39.748-0800: 0.459: [CMS-concurrent-preclean-start]</p>
+<p>2020-10-27T22:39:39.749-0800: 0.460: [CMS-concurrent-preclean: 0.001/0.001 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p>
+<p>2020-10-27T22:39:39.749-0800: 0.460: [CMS-concurrent-abortable-preclean-start]</p>
+<p>2020-10-27T22:39:39.945-0800: 0.656: [CMS-concurrent-abortable-preclean: 0.003/0.197 secs] [Times: user=0.93 sys=0.09, real=0.20 secs]</p>
+<p>2020-10-27T22:39:39.946-0800: 0.657: [GC (CMS Final Remark) [YG occupancy: 20360 K (157248 K)]2020-10-27T22:39:39.946-0800: 0.657: [Rescan (parallel) , 0.0004848 secs]2020-10-27T22:39:39.946-0800: 0.657: [weak refs processing, 0.0000389 secs]2020-10-27T22:39:39.946-0800: 0.657: [class unloading, 0.0003198 secs]2020-10-27T22:39:39.946-0800: 0.657: [scrub symbol table, 0.0004675 secs]2020-10-27T22:39:39.947-0800: 0.658: [scrub string table, 0.0001561 secs][1 CMS-remark: 345694K(349568K)] 366054K(506816K), 0.0015994 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p>
+<p>2020-10-27T22:39:39.947-0800: 0.658: [CMS-concurrent-sweep-start]</p>
+<p>2020-10-27T22:39:39.948-0800: 0.659: [CMS-concurrent-sweep: 0.001/0.001 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p>
+<p>2020-10-27T22:39:39.948-0800: 0.659: [CMS-concurrent-reset-start]</p>
+<p>2020-10-27T22:39:39.949-0800: 0.660: [CMS-concurrent-reset: 0.001/0.001 secs] [Times: user=0.00 sys=0.00, real=0.00 secs]</p>
+</blockquote>
+<p>第一次 CMS GC，可以看出CMS GC共有6个步骤</p>
+<ol>
+<li>CMS Initial Mark 初始标记</li>
+<li>CMS-concurrent-mark 并发标记</li>
+<li>CMS-concurrent-preclean 并发预清理</li>
+<li>CMS Final Remark 最终标记</li>
+<li>CMS-concurrent-sweep 并发清除</li>
+<li>CMS-concurrent-reset 并发重置</li>
+</ol>
+<p>其中初始标记和最终标记阶段没有concurrent，表示在此期间将会发生STW，停止业务线程</p>
+<p>其余阶段均可以与业务线程并发执行，此时默认的执行GC的线程数为机器CPU核心数的1/4。</p>
+<h4 id=232-使用1g堆内存>2.3.2 使用1g堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseConcMarkSweepGC -Xms1g -Xmx1g -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-28T21:29:26.158-0800: 0.280: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-28T21:29:26.158-0800: 0.281: <span style=color:#f92672>[</span>ParNew: 279616K-&gt;34944K<span style=color:#f92672>(</span>314560K<span style=color:#f92672>)</span>, 0.0431802 secs<span style=color:#f92672>]</span> 279616K-&gt;90159K<span style=color:#f92672>(</span>1013632K<span style=color:#f92672>)</span>, 0.0432705 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.07 sys<span style=color:#f92672>=</span>0.20, real<span style=color:#f92672>=</span>0.05 secs<span style=color:#f92672>]</span>
 2020-10-28T21:29:26.261-0800: 0.383: <span style=color:#f92672>[</span>GC <span style=color:#f92672>(</span>Allocation Failure<span style=color:#f92672>)</span> 2020-10-28T21:29:26.261-0800: 0.383: <span style=color:#f92672>[</span>ParNew: 314560K-&gt;34942K<span style=color:#f92672>(</span>314560K<span style=color:#f92672>)</span>, 0.0436206 secs<span style=color:#f92672>]</span> 369775K-&gt;165049K<span style=color:#f92672>(</span>1013632K<span style=color:#f92672>)</span>, 0.0436886 secs<span style=color:#f92672>]</span> <span style=color:#f92672>[</span>Times: user<span style=color:#f92672>=</span>0.09 sys<span style=color:#f92672>=</span>0.20, real<span style=color:#f92672>=</span>0.04 secs<span style=color:#f92672>]</span>
@@ -407,7 +659,19 @@ Heap
  concurrent mark-sweep generation total 699072K, used 484766K <span style=color:#f92672>[</span>0x0000000795550000, 0x00000007c0000000, 0x00000007c0000000<span style=color:#f92672>)</span>
  Metaspace       used 2695K, capacity 4486K, committed 4864K, reserved 1056768K
   class space    used 295K, capacity 386K, committed 512K, reserved 1048576K
-</code></pre></div><p>年轻代GC次数减少</p><p>当堆内存配置增大到2G时，未发生Full GC</p><h4 id=233-cms-gc总结>2.3.3 CMS GC总结</h4><p>CMS GC对年轻代采用并行STW方式的标记-复制算法</p><p>对老年代主要采用并发-清除算法</p><p>CMS的设计目标是避免在老年代垃圾收集时出现长时间的卡顿，主要使用了以下手段</p><ul><li>不对老年代进行整理，使用空闲列表来管理内存空间的回收</li><li>在标记-清除阶段的大部分工作是和应用线程一起并发执行的，并没有明显的应用线程暂停，只是仍然会有默认约1/4的线程数被CMS使用，无法处理业务</li></ul><h3 id=24-g1-gc的演示>2.4 G1 GC的演示</h3><h4 id=241-使用512m堆内存>2.4.1 使用512m堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseG1GC -Xms512m -Xmx512m -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><p>年轻代GC次数减少</p>
+<p>当堆内存配置增大到2G时，未发生Full GC</p>
+<h4 id=233-cms-gc总结>2.3.3 CMS GC总结</h4>
+<p>CMS GC对年轻代采用并行STW方式的标记-复制算法</p>
+<p>对老年代主要采用并发-清除算法</p>
+<p>CMS的设计目标是避免在老年代垃圾收集时出现长时间的卡顿，主要使用了以下手段</p>
+<ul>
+<li>不对老年代进行整理，使用空闲列表来管理内存空间的回收</li>
+<li>在标记-清除阶段的大部分工作是和应用线程一起并发执行的，并没有明显的应用线程暂停，只是仍然会有默认约1/4的线程数被CMS使用，无法处理业务</li>
+</ul>
+<h3 id=24-g1-gc的演示>2.4 G1 GC的演示</h3>
+<h4 id=241-使用512m堆内存>2.4.1 使用512m堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseG1GC -Xms512m -Xmx512m -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-28T21:57:25.232-0800: 0.113: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>young<span style=color:#f92672>)</span> 30M-&gt;12M<span style=color:#f92672>(</span>512M<span style=color:#f92672>)</span>, 0.0064043 secs<span style=color:#f92672>]</span>
 2020-10-28T21:57:25.251-0800: 0.132: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>young<span style=color:#f92672>)</span> 42M-&gt;25M<span style=color:#f92672>(</span>512M<span style=color:#f92672>)</span>, 0.0041272 secs<span style=color:#f92672>]</span>
@@ -512,7 +776,21 @@ Heap
 2020-10-28T21:57:26.187-0800: 1.068: <span style=color:#f92672>[</span>GC cleanup 358M-&gt;358M<span style=color:#f92672>(</span>512M<span style=color:#f92672>)</span>, 0.0007934 secs<span style=color:#f92672>]</span>
 2020-10-28T21:57:26.204-0800: 1.085: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>young<span style=color:#f92672>)</span> 407M-&gt;370M<span style=color:#f92672>(</span>512M<span style=color:#f92672>)</span>, 0.0032264 secs<span style=color:#f92672>]</span>
 执行结束!共生成对象次数:7336
-</code></pre></div><ol><li>年轻代模式转移暂停</li><li>并发标记<ul><li>Initial Mark 初始标记</li><li>Root Region Scan Root区扫描</li><li>Concurrent mark 并发标记</li><li>Remark 再次标记</li><li>Cleanup 清理</li></ul></li><li>转移暂停：混合模式</li></ol><h4 id=242-使用1g堆内存>2.4.2 使用1g堆内存</h4><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseG1GC -Xms1g -Xmx1g -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
+</code></pre></div><ol>
+<li>年轻代模式转移暂停</li>
+<li>并发标记
+<ul>
+<li>Initial Mark 初始标记</li>
+<li>Root Region Scan Root区扫描</li>
+<li>Concurrent mark 并发标记</li>
+<li>Remark 再次标记</li>
+<li>Cleanup 清理</li>
+</ul>
+</li>
+<li>转移暂停：混合模式</li>
+</ol>
+<h4 id=242-使用1g堆内存>2.4.2 使用1g堆内存</h4>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>java -XX:+UseG1GC -Xms1g -Xmx1g -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCTimeStamps GCLogAnalysis
 正在执行...
 2020-10-28T22:13:42.636-0800: 0.142: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>young<span style=color:#f92672>)</span> 63M-&gt;22M<span style=color:#f92672>(</span>1024M<span style=color:#f92672>)</span>, 0.0066787 secs<span style=color:#f92672>]</span>
 2020-10-28T22:13:42.657-0800: 0.163: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>young<span style=color:#f92672>)</span> 74M-&gt;38M<span style=color:#f92672>(</span>1024M<span style=color:#f92672>)</span>, 0.0072367 secs<span style=color:#f92672>]</span>
@@ -547,5 +825,62 @@ Heap
 2020-10-28T22:13:43.554-0800: 1.060: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>mixed<span style=color:#f92672>)</span> 592M-&gt;480M<span style=color:#f92672>(</span>1024M<span style=color:#f92672>)</span>, 0.0088458 secs<span style=color:#f92672>]</span>
 2020-10-28T22:13:43.583-0800: 1.089: <span style=color:#f92672>[</span>GC pause <span style=color:#f92672>(</span>G1 Evacuation Pause<span style=color:#f92672>)</span> <span style=color:#f92672>(</span>mixed<span style=color:#f92672>)</span> 541M-&gt;431M<span style=color:#f92672>(</span>1024M<span style=color:#f92672>)</span>, 0.0138395 secs<span style=color:#f92672>]</span>
 执行结束!共生成对象次数:7381
-</code></pre></div></div><footer class=post__footer><div class="post__tags tags clearfix"><svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5.0 11V3C0 1.5.8.8.8.8S1.5.0 3 0h8c1.5.0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 100-6 3 3 0 000 6z"/></svg><ul class=tags__list><li class=tags__item><a class="tags__link btn" href=/tags/java/ rel=tag>Java</a></li><li class=tags__item><a class="tags__link btn" href=/tags/gc/ rel=tag>GC</a></li><li class=tags__item><a class="tags__link btn" href=/tags/jvm/ rel=tag>JVM</a></li></ul></div></footer></article></main><div class="authorbox clearfix"><figure class=authorbox__avatar><img alt="陈曦 avatar" src=/image/WechatIMG2.jpeg class=avatar height=90 width=90></figure><div class=authorbox__header><span class=authorbox__name>About 陈曦</span></div><div class=authorbox__description>软件工程师</div></div><nav class="pager flex"><div class="pager__item pager__item--prev"><a class=pager__link href=/posts/redis%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%93%A8%E5%85%B5%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E8%B5%B0%E5%90%91%E9%AB%98%E5%8F%AF%E7%94%A8/ rel=prev><span class=pager__subtitle>«&#8201;Previous</span><p class=pager__title>Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用</p></a></div><div class="pager__item pager__item--next"><a class=pager__link href=/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/ rel=next><span class=pager__subtitle>Next&#8201;»</span><p class=pager__title>MySQL主从复制-异步复制</p></a></div></nav></div></div><footer class=footer><div class="container footer__container flex"><div class=footer__copyright>&copy; 2021 chenxi.
-<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span></div></div></footer></div><script async defer src=/js/menu.js></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script></body></html>
+</code></pre></div>
+</div>
+<footer class=post__footer>
+<div class="post__tags tags clearfix"><svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5.0 11V3C0 1.5.8.8.8.8S1.5.0 3 0h8c1.5.0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 100-6 3 3 0 000 6z"/></svg>
+<ul class=tags__list>
+<li class=tags__item>
+<a class="tags__link btn" href=/tags/java/ rel=tag>Java</a>
+</li>
+<li class=tags__item>
+<a class="tags__link btn" href=/tags/gc/ rel=tag>GC</a>
+</li>
+<li class=tags__item>
+<a class="tags__link btn" href=/tags/jvm/ rel=tag>JVM</a>
+</li>
+</ul>
+</div>
+</footer>
+</article>
+</main>
+<div class="authorbox clearfix">
+<figure class=authorbox__avatar>
+<img alt="陈曦 avatar" src=/image/WechatIMG2.jpeg class=avatar height=90 width=90>
+</figure>
+<div class=authorbox__header>
+<span class=authorbox__name>About 陈曦</span>
+</div>
+<div class=authorbox__description>
+软件工程师
+</div>
+</div>
+<nav class="pager flex">
+<div class="pager__item pager__item--prev">
+<a class=pager__link href=/posts/redis%E6%8C%81%E4%B9%85%E5%8C%96%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%93%A8%E5%85%B5%E9%9B%86%E7%BE%A4%E9%85%8D%E7%BD%AE%E4%B8%80%E6%AD%A5%E4%B8%80%E6%AD%A5%E8%B5%B0%E5%90%91%E9%AB%98%E5%8F%AF%E7%94%A8/ rel=prev>
+<span class=pager__subtitle>«&#8201;Previous</span>
+<p class=pager__title>Redis持久化、主从复制、哨兵、集群配置，一步一步走向高可用</p>
+</a>
+</div>
+<div class="pager__item pager__item--next">
+<a class=pager__link href=/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/ rel=next>
+<span class=pager__subtitle>Next&#8201;»</span>
+<p class=pager__title>MySQL主从复制-异步复制</p>
+</a>
+</div>
+</nav>
+</div>
+</div>
+<footer class=footer>
+<div class="container footer__container flex">
+<div class=footer__copyright>
+&copy; 2021 chenxi.
+<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span>
+</div>
+</div>
+</footer>
+</div>
+<script async defer src=/js/menu.js></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script>
+</body>
+</html>

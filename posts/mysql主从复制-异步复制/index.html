@@ -1,4 +1,13 @@
-<!doctype html><html class=no-js lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta http-equiv=x-ua-compatible content="IE=edge"><title>MySQL主从复制-异步复制 - 陈曦的技术博客</title><script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script><meta name=description content><meta property="og:title" content="MySQL主从复制-异步复制"><meta property="og:description" content="复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
+<!doctype html><html class=no-js lang=en>
+<head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta http-equiv=x-ua-compatible content="IE=edge">
+<title>MySQL主从复制-异步复制 - 陈曦的技术博客</title>
+<script>(function(a,b){a[b]=a[b].replace("no-js","js")})(document.documentElement,"className")</script>
+<meta name=description content>
+<meta property="og:title" content="MySQL主从复制-异步复制">
+<meta property="og:description" content="复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
 常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。
 1. 环境准备  操作系统：macOS Big Sur 11.0.1
 MySQL: mysql 5.7
@@ -6,7 +15,13 @@ MySQL: mysql 5.7
 1.1. 拉取MySQL 5.7的镜像 docker pull mysql:5.7 1.2. 启动MySQL实例  启动 master 实例  docker run -d \ -p 3307:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/master/data:/var/lib/mysql \ -v ~/tools/mysql/master/conf.d:/etc/mysql/conf.d \ --name mysql-5.7-master \ mysql:5.7 将MySQL数据文件挂在到本地目录 ~/tools/mysql/master/data，这样数据文件就可以直接在本地查看。
 将MySQL配置文件目录挂在到本地目录 ~/tools/mysql/master/conf.d，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。
 自定义配置文件 my-custom.cnf 如下，
-[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例  docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf."><meta property="og:type" content="article"><meta property="og:url" content="https://cchenxi.github.io/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2021-06-17T17:05:54+08:00"><meta property="article:modified_time" content="2021-06-17T17:05:54+08:00"><meta itemprop=name content="MySQL主从复制-异步复制"><meta itemprop=description content="复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
+[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例  docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://cchenxi.github.io/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/"><meta property="article:section" content="posts">
+<meta property="article:published_time" content="2021-06-17T17:05:54+08:00">
+<meta property="article:modified_time" content="2021-06-17T17:05:54+08:00">
+<meta itemprop=name content="MySQL主从复制-异步复制">
+<meta itemprop=description content="复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
 常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。
 1. 环境准备  操作系统：macOS Big Sur 11.0.1
 MySQL: mysql 5.7
@@ -14,7 +29,13 @@ MySQL: mysql 5.7
 1.1. 拉取MySQL 5.7的镜像 docker pull mysql:5.7 1.2. 启动MySQL实例  启动 master 实例  docker run -d \ -p 3307:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/master/data:/var/lib/mysql \ -v ~/tools/mysql/master/conf.d:/etc/mysql/conf.d \ --name mysql-5.7-master \ mysql:5.7 将MySQL数据文件挂在到本地目录 ~/tools/mysql/master/data，这样数据文件就可以直接在本地查看。
 将MySQL配置文件目录挂在到本地目录 ~/tools/mysql/master/conf.d，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。
 自定义配置文件 my-custom.cnf 如下，
-[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例  docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf."><meta itemprop=datePublished content="2021-06-17T17:05:54+08:00"><meta itemprop=dateModified content="2021-06-17T17:05:54+08:00"><meta itemprop=wordCount content="642"><meta itemprop=keywords content="MySQL,主从复制,高可用,"><meta name=twitter:card content="summary"><meta name=twitter:title content="MySQL主从复制-异步复制"><meta name=twitter:description content="复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
+[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例  docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf."><meta itemprop=datePublished content="2021-06-17T17:05:54+08:00">
+<meta itemprop=dateModified content="2021-06-17T17:05:54+08:00">
+<meta itemprop=wordCount content="642">
+<meta itemprop=keywords content="MySQL,主从复制,高可用,">
+<meta name=twitter:card content="summary">
+<meta name=twitter:title content="MySQL主从复制-异步复制">
+<meta name=twitter:description content="复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
 常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。
 1. 环境准备  操作系统：macOS Big Sur 11.0.1
 MySQL: mysql 5.7
@@ -22,8 +43,82 @@ MySQL: mysql 5.7
 1.1. 拉取MySQL 5.7的镜像 docker pull mysql:5.7 1.2. 启动MySQL实例  启动 master 实例  docker run -d \ -p 3307:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/master/data:/var/lib/mysql \ -v ~/tools/mysql/master/conf.d:/etc/mysql/conf.d \ --name mysql-5.7-master \ mysql:5.7 将MySQL数据文件挂在到本地目录 ~/tools/mysql/master/data，这样数据文件就可以直接在本地查看。
 将MySQL配置文件目录挂在到本地目录 ~/tools/mysql/master/conf.d，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。
 自定义配置文件 my-custom.cnf 如下，
-[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例  docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf."><link rel=preconnect href=https://fonts.gstatic.com crossorigin><link rel=dns-prefetch href=//fonts.googleapis.com><link rel=dns-prefetch href=//fonts.gstatic.com><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700"><link rel=stylesheet href=/css/style.css><link rel="shortcut icon" href=/favicon.ico></head><body class=body><div class="container container--outer"><header class=header><div class="container header__container"><div class="logo logo--mixed"><a class=logo__link href=/ title=陈曦的技术博客 rel=home><div class="logo__item logo__imagebox"><img class=logo__img src=/image/WechatIMG2.jpeg></div><div class="logo__item logo__text"><div class=logo__title>陈曦的技术博客</div></div></a></div><div class=divider></div></div></header><div class="wrapper flex"><div class=primary><main class=main role=main><article class=post><header class=post__header><h1 class=post__title>MySQL主从复制-异步复制</h1><div class="post__meta meta"><div class="meta__item-author meta__item"><svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>陈曦</span></div><div class="meta__item-datetime meta__item"><svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2021-06-17T17:05:54+08:00>2021-06-17</time></div></div></header><div class="post__toc toc"><div class=toc__title>Page content</div><div class=toc__menu><nav id=TableOfContents><ul><li><a href=#1-环境准备>1. 环境准备</a><ul><li><a href=#11-拉取mysql-57的镜像>1.1. 拉取MySQL 5.7的镜像</a></li><li><a href=#12-启动mysql实例>1.2. 启动MySQL实例</a></li></ul></li><li><a href=#2-传统的复制异步复制->2. 传统的复制（异步复制 ）</a><ul><li><a href=#21-在主库中创建用于复制的账号>2.1. 在主库中创建用于复制的账号</a></li><li><a href=#22-查看主库状态>2.2. 查看主库状态</a></li><li><a href=#23-配置从库-slave01>2.3. 配置从库 slave01</a></li><li><a href=#24-配置从库-slave02>2.4. 配置从库 slave02</a></li><li><a href=#25-测试异步主从复制>2.5. 测试异步主从复制</a></li></ul></li><li><a href=#26-测试环境恢复>2.6. 测试环境恢复</a></li></ul></nav></div></div><div class="content post__content clearfix"><p>复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。</p><p>常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。</p><h2 id=1-环境准备>1. 环境准备</h2><blockquote><p>操作系统：macOS Big Sur 11.0.1</p><p>MySQL: mysql 5.7</p></blockquote><p>为方便操作，这里使用docker来进行配置。配置3个MySQL实例，用于后续进行主从复制实验（1主2从）。</p><h3 id=11-拉取mysql-57的镜像>1.1. 拉取MySQL 5.7的镜像</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker pull mysql:5.7
-</code></pre></div><h3 id=12-启动mysql实例>1.2. 启动MySQL实例</h3><ol><li>启动 master 实例</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -d <span style=color:#ae81ff>\
+[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例  docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf.">
+<link rel=preconnect href=https://fonts.gstatic.com crossorigin>
+<link rel=dns-prefetch href=//fonts.googleapis.com>
+<link rel=dns-prefetch href=//fonts.gstatic.com>
+<link rel=stylesheet href="https://fonts.googleapis.com/css?family=Open+Sans:400,400i,700">
+<link rel=stylesheet href=/css/style.css>
+<link rel="shortcut icon" href=/favicon.ico>
+</head>
+<body class=body>
+<div class="container container--outer">
+<header class=header>
+<div class="container header__container">
+<div class="logo logo--mixed">
+<a class=logo__link href=/ title=陈曦的技术博客 rel=home>
+<div class="logo__item logo__imagebox">
+<img class=logo__img src=/image/WechatIMG2.jpeg>
+</div><div class="logo__item logo__text">
+<div class=logo__title>陈曦的技术博客</div>
+</div>
+</a>
+</div>
+<div class=divider></div>
+</div>
+</header>
+<div class="wrapper flex">
+<div class=primary>
+<main class=main role=main>
+<article class=post>
+<header class=post__header>
+<h1 class=post__title>MySQL主从复制-异步复制</h1>
+<div class="post__meta meta"><div class="meta__item-author meta__item">
+<svg class="meta__icon icon icon-author" width="16" height="16" viewBox="0 0 12 16"><path d="M6 1c2.2.0 3.5 2 3.5 4.5C9.5 7 8.9 8.2 8 9c2.9.8 4 2.5 4 5v1H0v-1c0-2.5 1.1-4.2 4-5-.9-.8-1.5-2-1.5-3.5C2.5 3 3.8 1 6 1z"/></svg><span class=meta__text>陈曦</span>
+</div>
+<div class="meta__item-datetime meta__item">
+<svg class="meta__icon icon icon-time" width="16" height="14" viewBox="0 0 30 28"><path d="M15 0C7 0 1 6 1 14s6 14 14 14 14-6 14-14S23 0 15 0zm0 25C9 25 4 20 4 14S9 3 15 3s11 5 11 11-5 11-11 11zm1-18h-2v8.4l6.8 4.4L22 18l-6-3.8V7z"/></svg><time class=meta__text datetime=2021-06-17T17:05:54+08:00>2021-06-17</time></div></div>
+</header>
+<div class="post__toc toc">
+<div class=toc__title>Page content</div>
+<div class=toc__menu>
+<nav id=TableOfContents>
+<ul>
+<li><a href=#1-环境准备>1. 环境准备</a>
+<ul>
+<li><a href=#11-拉取mysql-57的镜像>1.1. 拉取MySQL 5.7的镜像</a></li>
+<li><a href=#12-启动mysql实例>1.2. 启动MySQL实例</a></li>
+</ul>
+</li>
+<li><a href=#2-传统的复制异步复制->2. 传统的复制（异步复制 ）</a>
+<ul>
+<li><a href=#21-在主库中创建用于复制的账号>2.1. 在主库中创建用于复制的账号</a></li>
+<li><a href=#22-查看主库状态>2.2. 查看主库状态</a></li>
+<li><a href=#23-配置从库-slave01>2.3. 配置从库 slave01</a></li>
+<li><a href=#24-配置从库-slave02>2.4. 配置从库 slave02</a></li>
+<li><a href=#25-测试异步主从复制>2.5. 测试异步主从复制</a></li>
+</ul>
+</li>
+<li><a href=#26-测试环境恢复>2.6. 测试环境恢复</a></li>
+</ul>
+</nav>
+</div>
+</div><div class="content post__content clearfix">
+<p>复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。</p>
+<p>常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。</p>
+<h2 id=1-环境准备>1. 环境准备</h2>
+<blockquote>
+<p>操作系统：macOS Big Sur 11.0.1</p>
+<p>MySQL: mysql 5.7</p>
+</blockquote>
+<p>为方便操作，这里使用docker来进行配置。配置3个MySQL实例，用于后续进行主从复制实验（1主2从）。</p>
+<h3 id=11-拉取mysql-57的镜像>1.1. 拉取MySQL 5.7的镜像</h3>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker pull mysql:5.7
+</code></pre></div><h3 id=12-启动mysql实例>1.2. 启动MySQL实例</h3>
+<ol>
+<li>启动 master 实例</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -d <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-p 3307:3306 <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-e MYSQL_ROOT_PASSWORD<span style=color:#f92672>=</span><span style=color:#ae81ff>123456</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-e TZ<span style=color:#f92672>=</span>Asia/Shanghai <span style=color:#ae81ff>\
@@ -31,13 +126,19 @@ MySQL: mysql 5.7
 </span><span style=color:#ae81ff></span>-v ~/tools/mysql/master/conf.d:/etc/mysql/conf.d <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>--name mysql-5.7-master <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>mysql:5.7
-</code></pre></div><p>将MySQL数据文件挂在到本地目录 <code>~/tools/mysql/master/data</code>，这样数据文件就可以直接在本地查看。</p><p>将MySQL配置文件目录挂在到本地目录 <code>~/tools/mysql/master/conf.d</code>，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。</p><p>自定义配置文件 <code>my-custom.cnf</code> 如下，</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[mysqld]
+</code></pre></div><p>将MySQL数据文件挂在到本地目录 <code>~/tools/mysql/master/data</code>，这样数据文件就可以直接在本地查看。</p>
+<p>将MySQL配置文件目录挂在到本地目录 <code>~/tools/mysql/master/conf.d</code>，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。</p>
+<p>自定义配置文件 <code>my-custom.cnf</code> 如下，</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[mysqld]
 server_id = 1
 
 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
 log_bin=mysql-bin
 binlog-format=Row
-</code></pre></div><ol start=2><li>启动 slave01 实例</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -d <span style=color:#ae81ff>\
+</code></pre></div><ol start=2>
+<li>启动 slave01 实例</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -d <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-p 3317:3306 <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-e MYSQL_ROOT_PASSWORD<span style=color:#f92672>=</span><span style=color:#ae81ff>123456</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-e TZ<span style=color:#f92672>=</span>Asia/Shanghai <span style=color:#ae81ff>\
@@ -45,13 +146,17 @@ binlog-format=Row
 </span><span style=color:#ae81ff></span>-v ~/tools/mysql/slave01/conf.d:/etc/mysql/conf.d <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>--name mysql-5.7-slave01 <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>mysql:5.7
-</code></pre></div><p>自定义配置文件 <code>my-custom.cnf</code> 如下，</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[mysqld]
+</code></pre></div><p>自定义配置文件 <code>my-custom.cnf</code> 如下，</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[mysqld]
 server_id = 3
 
 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
 log_bin=mysql-bin
 binlog-format=Row
-</code></pre></div><ol start=3><li>启动 slave02 实例</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -d <span style=color:#ae81ff>\
+</code></pre></div><ol start=3>
+<li>启动 slave02 实例</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker run -d <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-p 3327:3306 <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-e MYSQL_ROOT_PASSWORD<span style=color:#f92672>=</span><span style=color:#ae81ff>123456</span> <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>-e TZ<span style=color:#f92672>=</span>Asia/Shanghai <span style=color:#ae81ff>\
@@ -59,17 +164,25 @@ binlog-format=Row
 </span><span style=color:#ae81ff></span>-v ~/tools/mysql/slave02/conf.d:/etc/mysql/conf.d <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>--name mysql-5.7-slave02 <span style=color:#ae81ff>\
 </span><span style=color:#ae81ff></span>mysql:5.7
-</code></pre></div><p>自定义配置文件 <code>my-custom.cnf</code> 如下，</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[mysqld]
+</code></pre></div><p>自定义配置文件 <code>my-custom.cnf</code> 如下，</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>[mysqld]
 server_id = 4
 
 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES 
 log_bin=mysql-bin
 binlog-format=Row
-</code></pre></div><p>使用 <code>docker ps -a | grep mysql</code> 查看已有的MySQL容器。下图中可以看到已经启动了3个MySQL实例。</p><p><img src=/image/20210617/docker-container-mysql.png alt=img.png></p><h2 id=2-传统的复制异步复制->2. 传统的复制（异步复制 ）</h2><p>什么是异步复制？</p><h3 id=21-在主库中创建用于复制的账号>2.1. 在主库中创建用于复制的账号</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>USER</span> <span style=color:#e6db74>&#39;repl&#39;</span><span style=color:#f92672>@</span><span style=color:#e6db74>&#39;%&#39;</span> IDENTIFIED <span style=color:#66d9ef>BY</span> <span style=color:#e6db74>&#39;123456&#39;</span>;
+</code></pre></div><p>使用 <code>docker ps -a | grep mysql</code> 查看已有的MySQL容器。下图中可以看到已经启动了3个MySQL实例。</p>
+<p><img src=/image/20210617/docker-container-mysql.png alt=img.png></p>
+<h2 id=2-传统的复制异步复制->2. 传统的复制（异步复制 ）</h2>
+<p>什么是异步复制？</p>
+<h3 id=21-在主库中创建用于复制的账号>2.1. 在主库中创建用于复制的账号</h3>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>USER</span> <span style=color:#e6db74>&#39;repl&#39;</span><span style=color:#f92672>@</span><span style=color:#e6db74>&#39;%&#39;</span> IDENTIFIED <span style=color:#66d9ef>BY</span> <span style=color:#e6db74>&#39;123456&#39;</span>;
 <span style=color:#66d9ef>GRANT</span> REPLICATION SLAVE <span style=color:#66d9ef>ON</span> <span style=color:#f92672>*</span>.<span style=color:#f92672>*</span> <span style=color:#66d9ef>TO</span> <span style=color:#e6db74>&#39;repl&#39;</span><span style=color:#f92672>@</span><span style=color:#e6db74>&#39;%&#39;</span>;
 flush <span style=color:#66d9ef>privileges</span>;
-</code></pre></div><h3 id=22-查看主库状态>2.2. 查看主库状态</h3><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> master status;
-</code></pre></div><p>查询结果如下，可以看到当前数据库的binlog文件以及当前的位置，需要记住当前的position值，后面配置从库时需要使用。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+-----------------+----------------+
+</code></pre></div><h3 id=22-查看主库状态>2.2. 查看主库状态</h3>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> master status;
+</code></pre></div><p>查询结果如下，可以看到当前数据库的binlog文件以及当前的位置，需要记住当前的position值，后面配置从库时需要使用。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+-----------------+----------------+
 |File             |mysql-bin.000013|
 +-----------------+----------------+
 |Position         |351             |
@@ -80,17 +193,29 @@ flush <span style=color:#66d9ef>privileges</span>;
 +-----------------+----------------+
 |Executed_Gtid_Set|                |
 +-----------------+----------------+
-</code></pre></div><h3 id=23-配置从库-slave01>2.3. 配置从库 slave01</h3><ol><li>使用在主库中创建的复制账号连接主库</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>CHANGE MASTER <span style=color:#66d9ef>TO</span>
+</code></pre></div><h3 id=23-配置从库-slave01>2.3. 配置从库 slave01</h3>
+<ol>
+<li>使用在主库中创建的复制账号连接主库</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>CHANGE MASTER <span style=color:#66d9ef>TO</span>
 MASTER_HOST<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;172.17.0.2&#39;</span>, <span style=color:#f92672>#</span> <span style=color:#960050;background-color:#1e0010>主库</span>ip
 MASTER_PORT <span style=color:#f92672>=</span> <span style=color:#ae81ff>3306</span>, <span style=color:#f92672>#</span> <span style=color:#960050;background-color:#1e0010>连接主库的端口</span>
 MASTER_USER<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;repl&#39;</span>, <span style=color:#f92672>#</span> <span style=color:#960050;background-color:#1e0010>主库的复制账号</span>
 MASTER_PASSWORD<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;123456&#39;</span>, <span style=color:#f92672>#</span> <span style=color:#960050;background-color:#1e0010>主库的复制账号密码</span>
 MASTER_LOG_FILE<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;mysql-bin.000013&#39;</span>, <span style=color:#f92672>#</span> <span style=color:#960050;background-color:#1e0010>主库的</span>binlog文件
 MASTER_LOG_POS<span style=color:#f92672>=</span><span style=color:#ae81ff>351</span>; <span style=color:#f92672>#</span> <span style=color:#960050;background-color:#1e0010>主库的</span>binlog偏移量
-</code></pre></div><p>在docker环境中，可以使用如下命令查询主库的ip</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker inspect --format<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;{{.NetworkSettings.IPAddress}}&#39;</span> mysql-5.7-master
-</code></pre></div><ol start=2><li>启动从库同步</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>start</span> slave;
-</code></pre></div><ol start=3><li>查看同步状态</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> slave status;
-</code></pre></div><p>可以看到如下输出</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+-----------------------------+------------------------------------------------------+
+</code></pre></div><p>在docker环境中，可以使用如下命令查询主库的ip</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-shell data-lang=shell>docker inspect --format<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;{{.NetworkSettings.IPAddress}}&#39;</span> mysql-5.7-master
+</code></pre></div><ol start=2>
+<li>启动从库同步</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>start</span> slave;
+</code></pre></div><ol start=3>
+<li>查看同步状态</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> slave status;
+</code></pre></div><p>可以看到如下输出</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+-----------------------------+------------------------------------------------------+
 |Slave_IO_State               |Waiting for master to send event                      | # 从库IO线程的状态，等待主库发送事件
 +-----------------------------+------------------------------------------------------+
 |Master_Host                  |172.17.0.2                                            |
@@ -205,8 +330,14 @@ MASTER_LOG_POS<span style=color:#f92672>=</span><span style=color:#ae81ff>351</s
 +-----------------------------+------------------------------------------------------+
 |Master_TLS_Version           |                                                      |
 +-----------------------------+------------------------------------------------------+
-</code></pre></div><h3 id=24-配置从库-slave02>2.4. 配置从库 slave02</h3><p>同 2.3. 配置从库 slave01</p><h3 id=25-测试异步主从复制>2.5. 测试异步主从复制</h3><h4 id=251-测试前主库和从库的状态>2.5.1. 测试前主库和从库的状态</h4><p>查看从库中目前的数据库</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> databases;
-</code></pre></div><p>可以看到如下输出，处理MySQL自带的数据库，暂时没有其他数据库。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+------------------+
+</code></pre></div><h3 id=24-配置从库-slave02>2.4. 配置从库 slave02</h3>
+<p>同 2.3. 配置从库 slave01</p>
+<h3 id=25-测试异步主从复制>2.5. 测试异步主从复制</h3>
+<h4 id=251-测试前主库和从库的状态>2.5.1. 测试前主库和从库的状态</h4>
+<p>查看从库中目前的数据库</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> databases;
+</code></pre></div><p>可以看到如下输出，处理MySQL自带的数据库，暂时没有其他数据库。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+------------------+
 |Database          |
 +------------------+
 |information_schema|
@@ -214,9 +345,14 @@ MASTER_LOG_POS<span style=color:#f92672>=</span><span style=color:#ae81ff>351</s
 |performance_schema|
 |sys               |
 +------------------+
-</code></pre></div><h4 id=252-修改主库并查看从库同步状态>2.5.2. 修改主库，并查看从库同步状态</h4><ol><li>在主库中创建数据库 <code>db_0</code>。</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>database</span> db_0;
-</code></pre></div><p>在从库中查看是否有 <code>db_0</code> 库。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> databases;
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+------------------+
+</code></pre></div><h4 id=252-修改主库并查看从库同步状态>2.5.2. 修改主库，并查看从库同步状态</h4>
+<ol>
+<li>在主库中创建数据库 <code>db_0</code>。</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>create</span> <span style=color:#66d9ef>database</span> db_0;
+</code></pre></div><p>在从库中查看是否有 <code>db_0</code> 库。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> databases;
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+------------------+
 |Database          |
 +------------------+
 |information_schema|
@@ -225,37 +361,110 @@ MASTER_LOG_POS<span style=color:#f92672>=</span><span style=color:#ae81ff>351</s
 |performance_schema|
 |sys               |
 +------------------+
-</code></pre></div><ol start=2><li>在主库的 <code>db_0</code> 库中新建数据表 <code>t_01</code>。</li></ol><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span> (
+</code></pre></div><ol start=2>
+<li>在主库的 <code>db_0</code> 库中新建数据表 <code>t_01</code>。</li>
+</ol>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>CREATE</span> <span style=color:#66d9ef>TABLE</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span> (
     <span style=color:#f92672>`</span>id<span style=color:#f92672>`</span> INT(<span style=color:#ae81ff>10</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span> AUTO_INCREMENT <span style=color:#66d9ef>COMMENT</span> <span style=color:#e6db74>&#39;自增主键&#39;</span>,
     <span style=color:#f92672>`</span>name<span style=color:#f92672>`</span> VARCHAR(<span style=color:#ae81ff>200</span>) <span style=color:#66d9ef>NOT</span> <span style=color:#66d9ef>NULL</span> <span style=color:#66d9ef>DEFAULT</span> <span style=color:#e6db74>&#39;&#39;</span> <span style=color:#66d9ef>COMMENT</span> <span style=color:#e6db74>&#39;姓名&#39;</span>,
     <span style=color:#66d9ef>PRIMARY</span> <span style=color:#66d9ef>KEY</span> (<span style=color:#f92672>`</span>id<span style=color:#f92672>`</span>)
 ) <span style=color:#66d9ef>DEFAULT</span> CHARSET<span style=color:#f92672>=</span>utf8mb4;
-</code></pre></div><p>在主库中查看数据表，可以看到执行建表语句成功，新增 <code>t_01</code> 表。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> tables;
-</code></pre></div><p>在从库中查看数据表，观察到表 <code>t_01</code> 也新建成功。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>use db_0;
+</code></pre></div><p>在主库中查看数据表，可以看到执行建表语句成功，新增 <code>t_01</code> 表。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> tables;
+</code></pre></div><p>在从库中查看数据表，观察到表 <code>t_01</code> 也新建成功。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>use db_0;
 <span style=color:#66d9ef>show</span> tables;
-</code></pre></div><ol start=3><li>在主库的 <code>db_0.t_01</code> 表中进行增删改查操作。</li></ol><p>此前的操作并未在 <code>t_01</code> 表中增加数据，所以不论是主库还是从库都没有数据。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>INSERT</span> <span style=color:#66d9ef>INTO</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span> (name)
+</code></pre></div><ol start=3>
+<li>在主库的 <code>db_0.t_01</code> 表中进行增删改查操作。</li>
+</ol>
+<p>此前的操作并未在 <code>t_01</code> 表中增加数据，所以不论是主库还是从库都没有数据。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>INSERT</span> <span style=color:#66d9ef>INTO</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span> (name)
 <span style=color:#66d9ef>VALUES</span> (<span style=color:#e6db74>&#39;chenxi0&#39;</span>),
        (<span style=color:#e6db74>&#39;chenxi1&#39;</span>),
        (<span style=color:#e6db74>&#39;chenxi2&#39;</span>);
-</code></pre></div><p>在主库和从库执行查询，可以看到3条数据被成功插入。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>SELECT</span> <span style=color:#f92672>*</span>
+</code></pre></div><p>在主库和从库执行查询，可以看到3条数据被成功插入。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>SELECT</span> <span style=color:#f92672>*</span>
 <span style=color:#66d9ef>FROM</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span>;
-</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+--+-------+
+</code></pre></div><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>+--+-------+
 |id|name   |
 +--+-------+
 |1 |chenxi0|
 |2 |chenxi1|
 |3 |chenxi2|
 +--+-------+
-</code></pre></div><p>在主库执行 UPDATE 操作之后，从库 <code>db_0.t_01</code> 表中id=3的记录被修改。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>UPDATE</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span>
+</code></pre></div><p>在主库执行 UPDATE 操作之后，从库 <code>db_0.t_01</code> 表中id=3的记录被修改。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>UPDATE</span> <span style=color:#f92672>`</span>t_01<span style=color:#f92672>`</span>
 <span style=color:#66d9ef>SET</span> <span style=color:#f92672>`</span>name<span style=color:#f92672>`</span> <span style=color:#f92672>=</span> <span style=color:#e6db74>&#39;chenxi4&#39;</span>
 <span style=color:#66d9ef>WHERE</span> <span style=color:#f92672>`</span>id<span style=color:#f92672>`</span> <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>;
-</code></pre></div><h2 id=26-测试环境恢复>2.6. 测试环境恢复</h2><p>在测试完异步主从同步之后，需要停止 <code>slave01</code> 和 <code>slave02</code> 的从库同步。</p><p>执行如下命令。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>stop slave;
-</code></pre></div><p>可以执行如下命令检查是否停止成功。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> slave status;
-</code></pre></div><p>可以看到 <code>Slave_IO_Running</code> 和 <code>Slave_SQL_Running</code> 都已经是 <code>No</code> 状态，说明同步已经停止。</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>
+</code></pre></div><h2 id=26-测试环境恢复>2.6. 测试环境恢复</h2>
+<p>在测试完异步主从同步之后，需要停止 <code>slave01</code> 和 <code>slave02</code> 的从库同步。</p>
+<p>执行如下命令。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql>stop slave;
+</code></pre></div><p>可以执行如下命令检查是否停止成功。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sql data-lang=sql><span style=color:#66d9ef>show</span> slave status;
+</code></pre></div><p>可以看到 <code>Slave_IO_Running</code> 和 <code>Slave_SQL_Running</code> 都已经是 <code>No</code> 状态，说明同步已经停止。</p>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text>
 +-----------------+--+
 |Slave_IO_Running |No|
 +-----------------+--+
 |Slave_SQL_Running|No|
 +-----------------+--+
-</code></pre></div></div><footer class=post__footer><div class="post__tags tags clearfix"><svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5.0 11V3C0 1.5.8.8.8.8S1.5.0 3 0h8c1.5.0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 100-6 3 3 0 000 6z"/></svg><ul class=tags__list><li class=tags__item><a class="tags__link btn" href=/tags/mysql/ rel=tag>MySQL</a></li><li class=tags__item><a class="tags__link btn" href=/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/ rel=tag>主从复制</a></li><li class=tags__item><a class="tags__link btn" href=/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/ rel=tag>高可用</a></li></ul></div></footer></article></main><div class="authorbox clearfix"><figure class=authorbox__avatar><img alt="陈曦 avatar" src=/image/WechatIMG2.jpeg class=avatar height=90 width=90></figure><div class=authorbox__header><span class=authorbox__name>About 陈曦</span></div><div class=authorbox__description>软件工程师</div></div><nav class="pager flex"><div class="pager__item pager__item--prev"><a class=pager__link href=/posts/gc%E6%97%A5%E5%BF%97%E8%A7%A3%E8%AF%BB/ rel=prev><span class=pager__subtitle>«&#8201;Previous</span><p class=pager__title>GC日志解读</p></a></div></nav></div></div><footer class=footer><div class="container footer__container flex"><div class=footer__copyright>&copy; 2021 chenxi.
-<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span></div></div></footer></div><script async defer src=/js/menu.js></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script></body></html>
+</code></pre></div>
+</div>
+<footer class=post__footer>
+<div class="post__tags tags clearfix"><svg class="tags__badge icon icon-tag" width="16" height="16" viewBox="0 0 32 32"><path d="M32 19c0 1-1 2-1 2L21 31s-1 1-2 1-2-1-2-1L2 16c-1-1-1.4-2-1.4-2S0 12.5.0 11V3C0 1.5.8.8.8.8S1.5.0 3 0h8c1.5.0 3 .6 3 .6S15 1 16 2l15 15s1 1 1 2zM7 10a3 3 0 100-6 3 3 0 000 6z"/></svg>
+<ul class=tags__list>
+<li class=tags__item>
+<a class="tags__link btn" href=/tags/mysql/ rel=tag>MySQL</a>
+</li>
+<li class=tags__item>
+<a class="tags__link btn" href=/tags/%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/ rel=tag>主从复制</a>
+</li>
+<li class=tags__item>
+<a class="tags__link btn" href=/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/ rel=tag>高可用</a>
+</li>
+</ul>
+</div>
+</footer>
+</article>
+</main>
+<div class="authorbox clearfix">
+<figure class=authorbox__avatar>
+<img alt="陈曦 avatar" src=/image/WechatIMG2.jpeg class=avatar height=90 width=90>
+</figure>
+<div class=authorbox__header>
+<span class=authorbox__name>About 陈曦</span>
+</div>
+<div class=authorbox__description>
+软件工程师
+</div>
+</div>
+<nav class="pager flex">
+<div class="pager__item pager__item--prev">
+<a class=pager__link href=/posts/gc%E6%97%A5%E5%BF%97%E8%A7%A3%E8%AF%BB/ rel=prev>
+<span class=pager__subtitle>«&#8201;Previous</span>
+<p class=pager__title>GC日志解读</p>
+</a>
+</div>
+<div class="pager__item pager__item--next">
+<a class=pager__link href=/posts/%E5%9C%A8java%E4%B8%AD%E5%86%99%E4%B8%80%E4%B8%AA%E6%AD%A3%E7%A1%AE%E7%9A%84%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/ rel=next>
+<span class=pager__subtitle>Next&#8201;»</span>
+<p class=pager__title>在Java中写一个正确的单例模式</p>
+</a>
+</div>
+</nav>
+</div>
+</div>
+<footer class=footer>
+<div class="container footer__container flex">
+<div class=footer__copyright>
+&copy; 2021 chenxi.
+<span class=footer__copyright-credits>Generated with <a href=https://gohugo.io/ rel="nofollow noopener" target=_blank>Hugo</a> and <a href=https://github.com/Vimux/Mainroad/ rel="nofollow noopener" target=_blank>Mainroad</a> theme.</span>
+</div>
+</div>
+</footer>
+</div>
+<script async defer src=/js/menu.js></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.6/MathJax.js?config=TeX-AMS-MML_HTMLorMML" async></script>
+</body>
+</html>
