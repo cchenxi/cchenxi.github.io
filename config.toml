@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "陈曦的技术博客"
 theme = "mainroad"
 paginate = "10" # Number of posts per page
-disqusShortname = "" # Enable Disqus comments by entering your Disqus shortname
+disqusShortname = "cchenxi-github-io.disqus.com" # Enable Disqus comments by entering your Disqus shortname
 googleAnalytics = "" # Enable Google Analytics by entering your tracking id
 
 [Author] # Used in authorbox
