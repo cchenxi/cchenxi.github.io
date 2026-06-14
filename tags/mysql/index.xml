@@ -1,9 +1,43 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>MySQL on 陈曦的技术博客</title><link>https://cchenxi.github.io/tags/mysql/</link><description>Recent content in MySQL on 陈曦的技术博客</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><lastBuildDate>Thu, 17 Jun 2021 17:05:54 +0800</lastBuildDate><atom:link href="https://cchenxi.github.io/tags/mysql/index.xml" rel="self" type="application/rss+xml"/><item><title>MySQL主从复制-异步复制</title><link>https://cchenxi.github.io/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/</link><pubDate>Thu, 17 Jun 2021 17:05:54 +0800</pubDate><guid>https://cchenxi.github.io/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/</guid><description>复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。
-常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。
-1. 环境准备 操作系统：macOS Big Sur 11.0.1
-MySQL: mysql 5.7
-为方便操作，这里使用docker来进行配置。配置3个MySQL实例，用于后续进行主从复制实验（1主2从）。
-1.1. 拉取MySQL 5.7的镜像 docker pull mysql:5.7 1.2. 启动MySQL实例 启动 master 实例 docker run -d \ -p 3307:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/master/data:/var/lib/mysql \ -v ~/tools/mysql/master/conf.d:/etc/mysql/conf.d \ --name mysql-5.7-master \ mysql:5.7 将MySQL数据文件挂在到本地目录 ~/tools/mysql/master/data，这样数据文件就可以直接在本地查看。
-将MySQL配置文件目录挂在到本地目录 ~/tools/mysql/master/conf.d，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。
-自定义配置文件 my-custom.cnf 如下，
-[mysqld] server_id = 1 sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES log_bin=mysql-bin binlog-format=Row 启动 slave01 实例 docker run -d \ -p 3317:3306 \ -e MYSQL_ROOT_PASSWORD=123456 \ -e TZ=Asia/Shanghai \ -v ~/tools/mysql/slave01/data:/var/lib/mysql \ -v ~/tools/mysql/slave01/conf.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>MySQL on 陈曦的技术博客</title><link>https://cchenxi.github.io/tags/mysql/</link><description>Recent content in MySQL on 陈曦的技术博客</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Thu, 17 Jun 2021 17:05:54 +0800</lastBuildDate><atom:link href="https://cchenxi.github.io/tags/mysql/index.xml" rel="self" type="application/rss+xml"/><item><title>MySQL主从复制-异步复制</title><link>https://cchenxi.github.io/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/</link><pubDate>Thu, 17 Jun 2021 17:05:54 +0800</pubDate><guid>https://cchenxi.github.io/posts/mysql%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6-%E5%BC%82%E6%AD%A5%E5%A4%8D%E5%88%B6/</guid><description>&lt;p&gt;复制是MySQL数据库提供的一种高可用高性能解决方案，一般用来建立大型应用（《MySQL技术内幕：innodb存储引擎（第二版）》）。&lt;/p&gt;
+&lt;p&gt;常见的主从复制方案有：异步复制、半同步复制、组复制。本文主要介绍传统的异步复制方式。&lt;/p&gt;
+&lt;h2 id="1-环境准备"&gt;1. 环境准备&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;操作系统：macOS Big Sur 11.0.1&lt;/p&gt;
+&lt;p&gt;MySQL: mysql 5.7&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;为方便操作，这里使用docker来进行配置。配置3个MySQL实例，用于后续进行主从复制实验（1主2从）。&lt;/p&gt;
+&lt;h3 id="11-拉取mysql-57的镜像"&gt;1.1. 拉取MySQL 5.7的镜像&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker pull mysql:5.7
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id="12-启动mysql实例"&gt;1.2. 启动MySQL实例&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;启动 master 实例&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker run -d &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-p 3307:3306 &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-e &lt;span class="nv"&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;123456&lt;/span&gt; &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-e &lt;span class="nv"&gt;TZ&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;Asia/Shanghai &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-v ~/tools/mysql/master/data:/var/lib/mysql &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-v ~/tools/mysql/master/conf.d:/etc/mysql/conf.d &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;--name mysql-5.7-master &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;mysql:5.7
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;将MySQL数据文件挂在到本地目录 &lt;code&gt;~/tools/mysql/master/data&lt;/code&gt;，这样数据文件就可以直接在本地查看。&lt;/p&gt;
+&lt;p&gt;将MySQL配置文件目录挂在到本地目录 &lt;code&gt;~/tools/mysql/master/conf.d&lt;/code&gt;，这样就可以在本地自定义配置文件，而不需要每次修改配置都登入容器内部。&lt;/p&gt;
+&lt;p&gt;自定义配置文件 &lt;code&gt;my-custom.cnf&lt;/code&gt; 如下，&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-text" data-lang="text"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;[mysqld]
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;server_id = 1
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;log_bin=mysql-bin
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;binlog-format=Row
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol start="2"&gt;
+&lt;li&gt;启动 slave01 实例&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;docker run -d &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-p 3317:3306 &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-e &lt;span class="nv"&gt;MYSQL_ROOT_PASSWORD&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;123456&lt;/span&gt; &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-e &lt;span class="nv"&gt;TZ&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;Asia/Shanghai &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-v ~/tools/mysql/slave01/data:/var/lib/mysql &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;-v ~/tools/mysql/slave01/conf.d:/etc/mysql/conf.d &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;--name mysql-5.7-slave01 &lt;span class="se"&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;mysql:5.7
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;自定义配置文件 &lt;code&gt;my-custom.cnf&lt;/code&gt; 如下，&lt;/p&gt;</description></item></channel></rss>

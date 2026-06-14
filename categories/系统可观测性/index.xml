@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>系统可观测性 on 陈曦的技术博客</title><link>https://cchenxi.github.io/categories/%E7%B3%BB%E7%BB%9F%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/</link><description>Recent content in 系统可观测性 on 陈曦的技术博客</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Sat, 13 Jun 2026 14:00:00 +0800</lastBuildDate><atom:link href="https://cchenxi.github.io/categories/%E7%B3%BB%E7%BB%9F%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7/index.xml" rel="self" type="application/rss+xml"/><item><title>CPU 100% 故障定位指导手册</title><link>https://cchenxi.github.io/posts/cpu-100-%E6%95%85%E9%9A%9C%E5%AE%9A%E4%BD%8D%E6%8C%87%E5%AF%BC%E6%89%8B%E5%86%8C/</link><pubDate>Sat, 13 Jun 2026 14:00:00 +0800</pubDate><guid>https://cchenxi.github.io/posts/cpu-100-%E6%95%85%E9%9A%9C%E5%AE%9A%E4%BD%8D%E6%8C%87%E5%AF%BC%E6%89%8B%E5%86%8C/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;适用场景: 告警系统上报 CPU 使用率超过阈值, 需逐层定位至代码行级
+前置知识: Linux 进程/线程模型, CPU 时间片调度, JVM 线程模型&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="一为什么需要四层诊断模型"&gt;一、为什么需要四层诊断模型&lt;/h2&gt;
+&lt;h3 id="11-理论依据-故障定位的层级原则"&gt;1.1 理论依据: 故障定位的&amp;quot;层级原则&amp;quot;&lt;/h3&gt;
+&lt;p&gt;一个 CPU 告警可能由多个层面的问题引起, 每一层需要不同的工具来观测:&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;系统层 (kernel) → /proc/stat, vmstat — 看调度队列和 CPU 时间分配
+进程层 (process) → top, /proc/&amp;lt;pid&amp;gt;/stat — 看进程级别的 CPU 消耗
+线程层 (thread) → top -H, /proc/&amp;lt;pid&amp;gt;/task — 看线程级别的 CPU 消耗
+代码层 (code) → jstack, perf, Arthas — 看具体的执行方法/指令
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;选择依据:&lt;/strong&gt; 每一层只看上一层无法提供的信息。系统层告诉你&amp;quot;CPU 在忙&amp;quot;, 但不告诉你是谁; 进程层告诉你&amp;quot;是 PID 172 在忙&amp;quot;, 但如果你直接跳到代码层(比如盲目 jstack), 你拿到 30 个线程的栈, 却不知道该看哪一个——这就是为什么需要线程层: 先找到具体的线程 TID, 再精准定位。&lt;/p&gt;</description></item></channel></rss>
