@@ -28,6 +28,10 @@ pygmentsCodeFences = true
   description = "软件工程师 · 技术笔记"
   dateformat = "2006-01-02"
 
+  # 禁用 SRI 指纹以避免 Windows CRLF 导致的哈希校验失败
+  [params.assets]
+    disableFingerprinting = true
+
   # 首页展示
   [params.homeInfoParams]
     Title = "欢迎"
