@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>LLM on 陈曦的技术博客</title><link>https://cchenxi.github.io/tags/llm/</link><description>Recent content in LLM on 陈曦的技术博客</description><generator>Hugo</generator><language>zh-cn</language><lastBuildDate>Wed, 05 Aug 2026 14:00:00 +0800</lastBuildDate><atom:link href="https://cchenxi.github.io/tags/llm/index.xml" rel="self" type="application/rss+xml"/><item><title>从 Prompt Engineering 到 Loop Engineering：AI 交互范式的四次进化</title><link>https://cchenxi.github.io/posts/%E4%BB%8E-prompt-engineering-%E5%88%B0-loop-engineering-ai-%E4%BA%A4%E4%BA%92%E8%8C%83%E5%BC%8F%E7%9A%84%E5%9B%9B%E6%AC%A1%E8%BF%9B%E5%8C%96/</link><pubDate>Wed, 05 Aug 2026 14:00:00 +0800</pubDate><guid>https://cchenxi.github.io/posts/%E4%BB%8E-prompt-engineering-%E5%88%B0-loop-engineering-ai-%E4%BA%A4%E4%BA%92%E8%8C%83%E5%BC%8F%E7%9A%84%E5%9B%9B%E6%AC%A1%E8%BF%9B%E5%8C%96/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;2026年，写提示词的技能正在被「设计闭环系统」的能力取代。本文梳理从 Prompt → Context → Harness → Loop 的完整演进脉络。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id="一引言提示词已死"&gt;一、引言：提示词已死？&lt;/h2&gt;
+&lt;p&gt;2026年6月，Google 工程师 Addy Osmani 发表了一篇引发广泛讨论的文章，系统化地命名了一个新学科：&lt;strong&gt;Loop Engineering（循环工程）&lt;/strong&gt;。同期，Claude Code 的创造者 Boris Cherny 公开表示：「我不再为 Claude 写提示词了。我运行一些循环，让循环去提示 Claude。」英伟达 CEO 黄仁勋更是直接宣布：「提示词编写已过时。」&lt;/p&gt;
+&lt;p&gt;这些信号指向同一个趋势：&lt;strong&gt;AI 工程的核心正在从「如何写好提示词」迁移到「如何设计自主运行的闭环系统」&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;但这不意味着 Prompt Engineering 真的「死」了——它只是被降维了。本文将从完整演进脉络展开，梳理这条技术线的发展全景。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="二四阶段演进全景"&gt;二、四阶段演进全景&lt;/h2&gt;
+&lt;p&gt;AI 工程的核心交互范式，在三年里经历了四次根本性转变：&lt;/p&gt;
+&lt;div class="mermaid"&gt;
+flowchart LR
+A["&lt;b&gt;Prompt Engineering&lt;/b&gt;&lt;br/&gt;2023&lt;br/&gt;&lt;br/&gt;写更好的指令&lt;br/&gt;角色设定 · 分步引导 · 少样本示例"]
+B["&lt;b&gt;Context Engineering&lt;/b&gt;&lt;br/&gt;2024-2025&lt;br/&gt;&lt;br/&gt;管理信息环境&lt;br/&gt;RAG · 上下文压缩 · 知识库注入"]
+C["&lt;b&gt;Harness Engineering&lt;/b&gt;&lt;br/&gt;2025-2026&lt;br/&gt;&lt;br/&gt;装上工具和安全带&lt;br/&gt;MCP协议 · API调用 · 沙箱执行"]
+D["&lt;b&gt;Loop Engineering&lt;/b&gt;&lt;br/&gt;2026-现在&lt;br/&gt;&lt;br/&gt;设计自主闭环系统&lt;br/&gt;目标驱动 · 自动验证 · 停止条件"]
+A --&gt; B --&gt; C --&gt; D
+&lt;/div&gt;
+&lt;p&gt;四次转变背后是同一个驱动力：&lt;strong&gt;如何让模型从「回答问题」进化为「自主完成任务」。&lt;/strong&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id="三第一层prompt-engineering-的黄金时代与黄昏"&gt;三、第一层：Prompt Engineering 的黄金时代与黄昏&lt;/h2&gt;
+&lt;h3 id="31-经典范式"&gt;3.1 经典范式&lt;/h3&gt;
+&lt;p&gt;2023年是 Prompt Engineering 的黄金时代。当时的主流认知是：输出质量取决于提示词的精细程度。核心手段包括：&lt;/p&gt;</description></item></channel></rss>
