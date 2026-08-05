@@ -1,0 +1,10 @@
+{{- /* Footer custom content area start */ -}}
+{{- if .Params.mermaid }}
+<script>
+(function() {
+  mermaid.initialize({ startOnLoad: false, theme: 'base' });
+  mermaid.run({ querySelector: '.mermaid' });
+})();
+</script>
+{{- end }}
+{{- /* Footer custom content area end */ -}}

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -rf /tmp/gh-pages-deploy/*)",
+      "Bash(cp -r D:/workspace/repositories/cchenxi.github.io/public/* /tmp/gh-pages-deploy/)",
+      "Bash(cp D:/workspace/repositories/cchenxi.github.io/public/.nojekyll /tmp/gh-pages-deploy/)",
+      "Bash(rm -rf /tmp/gh-pages-deploy)",
+      "Bash(git worktree *)",
+      "Bash(cp -r public/* /tmp/gh-pages-deploy/)",
+      "Bash(cp public/.nojekyll /tmp/gh-pages-deploy/)"
+    ]
+  }
+}
