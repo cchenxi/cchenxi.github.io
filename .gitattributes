@@ -1,2 +1,0 @@
-# Force LF line endings for all text files to ensure SRI hashes match
-* text=auto eol=lf
