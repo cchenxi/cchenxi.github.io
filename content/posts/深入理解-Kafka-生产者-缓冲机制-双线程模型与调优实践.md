@@ -122,7 +122,7 @@ append 成功后 `send()` 返回 `Future`；若等 metadata 或分配 buffer，�
 
 ## 四、关键参数详解
 
-> 下表为 **kafka-clients 3.x** 的默认值。2.1 起 `retries` / `delivery.timeout.ms` 的行为见下：这两个参数的默认值都是 2.1（KIP-91）才引入的——2.1 之前 `retries` 默认为 `0`，并且没有 `delivery.timeout.ms` 这个参数。**4.0 起 `linger.ms` 默认 5**，表中仍按 3.x 记为 0 ms。
+> 下表为 **kafka-clients 3.x** 默认值。`retries` 默认无限与 `delivery.timeout.ms` 均自 2.1（KIP-91）起（2.1 前 `retries=0`、无 `delivery.timeout.ms`）；4.0 起 `linger.ms` 默认 5。
 
 ### 缓冲与批量化参数
 
@@ -148,7 +148,7 @@ append 成功后 `send()` 返回 `Future`；若等 metadata 或分配 buffer，�
 | --------------------------------------- | ---- | --------------------- |
 | `max.in.flight.requests.per.connection` | 5    | 每个连接上未确认请求的上限         |
 | `max.request.size`                      | 1 MB | 单次请求最大大小，也是单个未压缩批次的上限 |
-| `acks`                                  | `all`（3.x 起、幂等开启时） | 在途批次要等 ACK 才释放所占 buffer。3.x 起幂等默认开启，此时 `acks` 为 `all`，需等 ISR 确认，ACK 更久，buffer 占用被拉长 |
+| `acks`                                  | `all`（3.0 起；2.x 为 1） | 在途批次要等 ACK 才释放 buffer；`all` 需等 ISR 确认，ACK 更久，buffer 占用更长；开启幂等要求 `acks=all` |
 
 ---
 
@@ -169,7 +169,7 @@ append 成功后 `send()` 返回 `Future`；若等 metadata 或分配 buffer，�
 - **buffer.memory vs batch.size**：buffer.memory 是总池子，batch.size 是每个批次的期望上限。总占用 ≈ partition 数 × 队列批次数 × batch.size，再加上在途与重试的批次
 - **linger.ms vs batch.size**：`linger.ms=0` 时批次尽快变为 ready；若 Sender 取走前同分区还有消息且未满 `batch.size`，仍可能打进同一批。此时延迟低，吞吐往往也偏低；增大 `linger.ms` 可以让批次更满，提高吞吐。`linger.ms` 的计时起点是批次创建时刻（≈ 第一条消息进入批次）；而重试中的批次用的是 `retry.backoff.ms` 的等待窗口，不是 `linger.ms`
 - **compression.type**：压缩发生在**消息 append 进批次的那一刻**——ByteBuffer 里存的就是压缩后的字节。所以缓冲块的分块粒度不变（仍按 `batch.size` 分配），但同一块能装下更多原始消息，等于用相同的 buffer.memory 容纳更多消息。开启压缩后，批次是否"满"按估算的压缩后大小判断，封批时机也随之改变
-- **enable.idempotence**（Kafka 3.0 起默认 `true`）：开启后 `acks` 默认 `all`、`max.in.flight.requests.per.connection ≤ 5`、`retries > 0`。它提供的是单 Producer 会话内、按分区的幂等去重（避免重试重复）；跨会话 / 多分区原子性见事务（`transactional.id`）。开启幂等：允许 in-flight > 1，且重试时仍保序；关闭幂等又 in-flight > 1：重试可能乱序
+- **enable.idempotence**（Kafka 3.0 起默认 `true`）：开启幂等要求 `acks=all`、`max.in.flight.requests.per.connection ≤ 5`、`retries > 0`。`acks` 自 3.0（KIP-679）起默认就是 `all`，与幂等开关无关。它提供的是单 Producer 会话内、按分区的幂等去重（避免重试重复）；跨会话 / 多分区原子性见事务（`transactional.id`）。开启幂等：允许 in-flight > 1，且重试时仍保序；关闭幂等又 in-flight > 1：重试可能乱序
 - **delivery.timeout.ms 的约束**：官方要求 `delivery.timeout.ms ≥ request.timeout.ms + linger.ms`
 - **retries**：默认 Integer.MAX_VALUE，重试时批次不释放，持续占用内存；但重试的总时长受 delivery.timeout.ms 兜底
 - **max.in.flight.requests.per.connection**：单条连接上未完成请求数的上限，幂等开启时必须 ≤ 5。调大之后，同时等 ACK、尚未释放的 buffer 会更多；每个请求能塞进多少批次还受 `max.request.size` 约束，占用不是按 5 × 16KB 线性放大
