@@ -15,6 +15,7 @@ aliases:
 
 > 适用场景：生产者 `send()` 偶发阻塞或抛 `TimeoutException`、缓冲区占用持续走高，需要定位瓶颈并调优 Producer 配置。
 > 前置知识：Kafka 基本概念（topic / partition / broker / ACK）、生产者-消费者模型、Java 线程安全基础。
+> 版本口径：本文默认值按 **kafka-clients 3.x**。
 
 ---
 
@@ -46,14 +47,15 @@ Kafka 生产者内部有两条并行的工作线：调用线程和 Sender 线程
 
 ### 调用线程（calling thread）
 
-调用线程就是你的应用代码所在的线程（下称"调用线程"）。当调用 `producer.send(record)` 时，消息依次经过以下流水线：
+调用线程就是你的应用代码所在的线程（下称"调用线程"）。当调用 `producer.send(record)` 时，消息依次经过以下流水线（上图省略了序列化之前的 metadata 等待，阻塞点见第六节）：
 
 1. **Interceptors（拦截器）**：可对消息做修改或过滤，大多数场景不使用
-2. **Serializer（序列化器）**：将业务对象序列化为字节数组
-3. **Partitioner（分区器）**：决定消息发往哪个 partition
-4. **RecordAccumulator（缓冲区）**：将消息追加到对应 partition 的批次中
+2. **等待 metadata**：`waitOnMetadata()` 在序列化之前拿到 topic 的分区与 leader 信息，这一步计入 `max.block.ms`
+3. **Serializer（序列化器）**：将业务对象序列化为字节数组
+4. **Partitioner（分区器）**：决定消息发往哪个 partition
+5. **RecordAccumulator（缓冲区）**：将消息追加到对应 partition 的批次中
 
-这一步完成后，`send()` 方法就返回了（异步），调用线程可以继续处理后续逻辑。
+append 成功后 `send()` 返回 `Future`；若等 metadata 或分配 buffer，仍可能阻塞至 `max.block.ms`。
 
 ### Sender 线程（唯一的后台线程）
 
@@ -104,7 +106,7 @@ Kafka 生产者内部有两条并行的工作线：调用线程和 Sender 线程
 
 所有 partition 的所有批次（包括 ready 和 writing 的）共享 buffer.memory 总池。partition 越多，每个 partition 队列里的批次越多，总占用就越大。每个新批次会按 `batch.size` 预分配缓冲块（单条超大消息除外），所以"每个 partition 至少占一个 16KB 批次"这个直觉是成立的。
 
-更关键的是：已经发给网络但还没收到 Broker ACK 的批次，内存也不会释放。它们仍在占用 buffer.memory，直到收到响应（`acks=0` 时没有响应，发完即算完成）。这意味着如果 Broker 响应慢，in-flight 的批次会持续占用缓冲区内存。
+更关键的是：已经发给网络但还没收到 Broker ACK 的批次，内存也不会释放。它们仍在占用 buffer.memory，直到收到响应（`acks=0` 时没有响应，发完即算完成）。这意味着如果 Broker 响应慢，in-flight 的批次会持续占用缓冲区内存。批次 ByteBuffer 算在 `buffer.memory` 里；压缩临时缓冲、维护 in-flight 请求的结构等还有池外开销。
 
 ### 粗略估算
 
@@ -120,7 +122,7 @@ Kafka 生产者内部有两条并行的工作线：调用线程和 Sender 线程
 
 ## 四、关键参数详解
 
-> 下表默认值以 **Kafka 3.x**（≥ 2.1）为准。`retries` 与 `delivery.timeout.ms` 的默认值都是 2.1（KIP-91）才引入的——2.1 之前 `retries` 默认为 `0`，并且没有 `delivery.timeout.ms` 这个参数。
+> 下表为 **kafka-clients 3.x** 默认值。`retries` 默认无限与 `delivery.timeout.ms` 均自 2.1（KIP-91）起（2.1 前 `retries=0`、无 `delivery.timeout.ms`）；4.0 起 `linger.ms` 默认 5。
 
 ### 缓冲与批量化参数
 
@@ -128,7 +130,7 @@ Kafka 生产者内部有两条并行的工作线：调用线程和 Sender 线程
 | ------------------ | ----- | ------------------------------- |
 | `buffer.memory`    | 32 MB | 缓冲区总容量上限，所有 partition 的批次共享       |
 | `batch.size`       | 16 KB | 期望的批次大小上限，单条超过它的消息会单独成批        |
-| `linger.ms`        | 0 ms  | 攒批等待时间，超时后即使批次没满也发送             |
+| `linger.ms`        | 0 ms  | 攒批等待时间，超时后即使批次没满也发送（3.x 默认 0 ms；4.0 起默认 5 ms） |
 | `compression.type` | none  | 压缩算法（none/gzip/snappy/lz4/zstd） |
 
 ### 阻塞与超时参数
@@ -140,12 +142,13 @@ Kafka 生产者内部有两条并行的工作线：调用线程和 Sender 线程
 | `request.timeout.ms`  | 30,000 ms     | 单次网络请求超时                              |
 | `retries`             | 2,147,483,647 | 重试次数（2.1 起默认无限，总时长由 delivery.timeout.ms 兜底） |
 
-### 网络参数
+### 网络与可靠性参数
 
 | 参数                                      | 默认值  | 作用                    |
 | --------------------------------------- | ---- | --------------------- |
 | `max.in.flight.requests.per.connection` | 5    | 每个连接上未确认请求的上限         |
 | `max.request.size`                      | 1 MB | 单次请求最大大小，也是单个未压缩批次的上限 |
+| `acks`                                  | `all`（3.0 起；2.x 为 1） | 在途批次要等 ACK 才释放 buffer；`all` 需等 ISR 确认，ACK 更久，buffer 占用更长；开启幂等要求 `acks=all` |
 
 ---
 
@@ -164,12 +167,12 @@ Kafka 生产者内部有两条并行的工作线：调用线程和 Sender 线程
 ### 关键关系说明
 
 - **buffer.memory vs batch.size**：buffer.memory 是总池子，batch.size 是每个批次的期望上限。总占用 ≈ partition 数 × 队列批次数 × batch.size，再加上在途与重试的批次
-- **linger.ms vs batch.size**：linger.ms=0 时批次攒到第一条就立刻发（除非同时到达），吞吐低但延迟低；增大 linger.ms 可以让批次更满，提高吞吐。`linger.ms` 的计时起点是批次创建时刻（≈ 第一条消息进入批次）；而重试中的批次用的是 `retry.backoff.ms` 的等待窗口，不是 `linger.ms`
+- **linger.ms vs batch.size**：`linger.ms=0` 时批次尽快变为 ready；若 Sender 取走前同分区还有消息且未满 `batch.size`，仍可能打进同一批。此时延迟低，吞吐往往也偏低；增大 `linger.ms` 可以让批次更满，提高吞吐。`linger.ms` 的计时起点是批次创建时刻（≈ 第一条消息进入批次）；而重试中的批次用的是 `retry.backoff.ms` 的等待窗口，不是 `linger.ms`
 - **compression.type**：压缩发生在**消息 append 进批次的那一刻**——ByteBuffer 里存的就是压缩后的字节。所以缓冲块的分块粒度不变（仍按 `batch.size` 分配），但同一块能装下更多原始消息，等于用相同的 buffer.memory 容纳更多消息。开启压缩后，批次是否"满"按估算的压缩后大小判断，封批时机也随之改变
-- **enable.idempotence**（Kafka 3.0 起默认 `true`）：开启后 `acks` 默认 `all`、`max.in.flight.requests.per.connection ≤ 5`、`retries > 0`。它不仅提供"恰好一次"语义，还保证**即使 in-flight > 1 且发生重试也不会乱序**；反之，关闭幂等且 in-flight > 1 时，重试可能导致消息重排。所以它是性能与顺序性之间的取舍，不只是性能旋钮
+- **enable.idempotence**（Kafka 3.0 起默认 `true`）：开启幂等要求 `acks=all`、`max.in.flight.requests.per.connection ≤ 5`、`retries > 0`。`acks` 自 3.0（KIP-679）起默认就是 `all`，与幂等开关无关。它提供的是单 Producer 会话内、按分区的幂等去重（避免重试重复）；跨会话 / 多分区原子性见事务（`transactional.id`）。开启幂等：允许 in-flight > 1，且重试时仍保序；关闭幂等又 in-flight > 1：重试可能乱序
 - **delivery.timeout.ms 的约束**：官方要求 `delivery.timeout.ms ≥ request.timeout.ms + linger.ms`
 - **retries**：默认 Integer.MAX_VALUE，重试时批次不释放，持续占用内存；但重试的总时长受 delivery.timeout.ms 兜底
-- **max.in.flight.requests.per.connection**：越大 → 同时占用的 buffer 越多（in-flight 批次等 ACK 时不释放）
+- **max.in.flight.requests.per.connection**：单条连接上未完成请求数的上限，幂等开启时必须 ≤ 5。调大之后，同时等 ACK、尚未释放的 buffer 会更多；每个请求能塞进多少批次还受 `max.request.size` 约束，占用不是按 5 × 16KB 线性放大
 
 ---
 
@@ -248,13 +251,13 @@ Sender 线程名是 `kafka-producer-network-thread | <clientId>`，在 JVM 线�
 
 ## 八、优化方案（按优先级排列）
 
-### 1. 启用压缩（效果最显著，成本最低）
+### 1. 启用压缩（通常性价比高）
 
 ```properties
 compression.type=lz4
 ```
 
-压缩发生在消息 append 进批次的那一刻，缓冲块里存的就是压缩后的字节，所以一块 `batch.size` 能装下 2~3 倍的原始消息——等于用相同的 32MB 容纳更多消息。lz4 编解码很快，CPU 开销相对小，但要注意**压缩是在调用 `send()` 的线程上完成的**，会给调用线程带来一部分 CPU 开销和延迟。这是性价比最高的优化。
+压缩发生在消息 append 进批次的那一刻，缓冲块里存的就是压缩后的字节。视数据而定，文本 / JSON 常见可到数倍，等于用相同的 32MB 容纳更多消息；已经压缩过的 payload 可能几乎没有收益，却仍占用调用线程的 CPU，应先实测。lz4 编解码很快，CPU 开销相对小，但要注意**压缩是在调用 `send()` 的线程上完成的**，会给调用线程带来一部分 CPU 开销和延迟。这通常是性价比较高的优化。
 
 ### 2. 增大 buffer.memory（缓解，不根治）
 
@@ -302,7 +305,7 @@ delivery.timeout.ms=120000   # 从 send 到收到 ACK 的总时长上限
 
 | 优先级 | 手段       | 对应参数                    | 在水箱模型里    | 效果           |
 | --- | -------- | ----------------------- | --------- | ------------ |
-| 1   | 启用压缩     | `compression.type`      | 减小进水单次体积  | 同等内存装 2~3 倍消息 |
+| 1   | 启用压缩     | `compression.type`      | 减小进水单次体积  | 视数据而定，文本/JSON 常见可到数倍；已压缩 payload 先实测 |
 | 2   | 增大缓冲     | `buffer.memory`         | 加大水箱      | 缓解，不根治       |
 | 3   | 调大批次     | `batch.size`+`linger.ms` | 提升出水效率    | 吞吐上升         |
 | 4   | 控制重试时长   | `delivery.timeout.ms`   | 防止水卡在管子里  | 避免内存被占死      |
